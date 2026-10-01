@@ -1,0 +1,409 @@
+.home {
+  --ground: 132px;
+  position: relative;
+  min-height: calc(100vh - 28px);
+  margin: 14px;
+  border: var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+  gap: var(--s-6);
+  padding: var(--s-5) clamp(16px, 4vw, 64px) 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ---------- scene ---------- */
+.home__sky {
+  position: absolute;
+  inset: 0 0 var(--ground) 0;
+  background: var(--grain), var(--sky-wash);
+  z-index: -2;
+}
+.cloud {
+  position: absolute;
+  width: 150px;
+  height: 46px;
+  background: var(--paper);
+  border-radius: 40px;
+  filter: drop-shadow(2px 0 0 var(--ink)) drop-shadow(-2px 0 0 var(--ink)) drop-shadow(0 2px 0 var(--ink)) drop-shadow(0 -2px 0 var(--ink));
+  animation: drift 60s linear infinite alternate;
+}
+.cloud::before,
+.cloud::after {
+  content: "";
+  position: absolute;
+  background: var(--paper);
+  border-radius: 50%;
+}
+.cloud::before {
+  width: 62px;
+  height: 62px;
+  left: 24px;
+  top: -30px;
+}
+.cloud::after {
+  width: 46px;
+  height: 46px;
+  left: 76px;
+  top: -20px;
+}
+.cloud--small {
+  scale: 0.65;
+}
+@keyframes drift {
+  to {
+    translate: 60px 0;
+  }
+}
+
+.home__ground {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: var(--ground);
+  z-index: -1;
+  background: var(--grass);
+  border-top: var(--line);
+}
+/* the road, with its dashed centre line */
+.home__ground::after {
+  content: "";
+  position: absolute;
+  inset: 34px 0 0 0;
+  border-top: var(--line);
+  background:
+    repeating-linear-gradient(90deg, var(--paper) 0 46px, transparent 46px 92px) 0 50% / 100% 6px no-repeat,
+    var(--road);
+}
+
+/* ---------- intro column ---------- */
+.home__intro {
+  display: grid;
+  align-content: start;
+  gap: var(--s-4);
+  max-width: 620px;
+  padding-bottom: calc(var(--ground) + var(--s-6));
+}
+.home__tagline {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 800;
+  font-size: var(--fs-h2);
+  line-height: 1;
+  text-transform: uppercase;
+}
+.home__pitch {
+  font-size: var(--fs-lead);
+  max-width: 34ch;
+}
+
+.home__form {
+  display: grid;
+  gap: var(--s-4);
+  margin-top: var(--s-2);
+  padding: var(--s-4) var(--s-5) var(--s-5);
+  border: var(--line);
+  border-radius: var(--radius);
+  background: var(--paper);
+  box-shadow: var(--ground-shadow);
+}
+.home__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--s-4);
+  align-items: end;
+}
+
+.lang {
+  display: flex;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.lang legend {
+  margin-bottom: var(--s-1);
+}
+.lang__opt {
+  display: grid;
+  place-items: center;
+  min-width: 56px;
+  min-height: 52px;
+  border: var(--line);
+  background: var(--paper);
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 700;
+  cursor: pointer;
+}
+.lang__opt:first-of-type {
+  border-radius: 10px 0 0 9px;
+}
+.lang__opt:last-of-type {
+  border-radius: 0 9px 10px 0;
+  margin-left: -2.5px;
+}
+.lang__opt[data-on] {
+  background: var(--bus);
+}
+.lang__opt:has(:focus-visible) {
+  outline: 3px dashed var(--focus);
+  outline-offset: 3px;
+}
+
+/* ---------- difficulty ---------- */
+.levels {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: var(--s-2);
+}
+.levels__row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-2);
+}
+.level {
+  display: grid;
+  align-content: start;
+  gap: 2px;
+  padding: var(--s-2) var(--s-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  cursor: pointer;
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.level:hover {
+  transform: rotate(-1deg);
+}
+.level[data-on] {
+  background: var(--bus);
+  box-shadow: var(--paint-depth);
+}
+.level:has(:focus-visible) {
+  outline: 3px dashed var(--focus);
+  outline-offset: 3px;
+}
+/* Bricks that fill up with the level: the number of filled bricks, not colour, carries the difficulty. */
+.level__meter {
+  display: flex;
+  gap: 3px;
+}
+.level__meter span {
+  width: 16px;
+  height: 9px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+}
+.level__meter span[data-full] {
+  background: var(--brick);
+}
+.level__name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: var(--fs-lead);
+  line-height: 1.05;
+}
+.level__blurb {
+  font-size: 0.9375rem;
+  line-height: 1.25;
+}
+
+.tools {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  display: grid;
+  gap: var(--s-2);
+}
+.tools__hint {
+  font-size: var(--fs-label);
+  color: var(--ink-soft);
+  margin-left: var(--s-2);
+}
+.tools__grid {
+  display: grid;
+  margin-top: var(--s-2);
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--s-2);
+}
+.tool {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-2);
+  min-height: 44px;
+  padding: var(--s-1) var(--s-3);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  cursor: pointer;
+  text-align: left;
+  transition: transform var(--t-fast) var(--ease-out);
+}
+.tool:hover {
+  transform: rotate(-1deg);
+}
+.tool__text {
+  display: grid;
+}
+.tool__kind {
+  font-family: var(--font-label);
+  font-size: 0.9375rem;
+  line-height: 1.1;
+  color: var(--ink-soft);
+}
+.tool[data-kind="sabotage"] .tool__kind {
+  color: var(--brick-deep);
+}
+.tool[aria-pressed="true"] {
+  background: var(--bus);
+  box-shadow: var(--paint-depth);
+}
+.tool__name {
+  font-weight: 700;
+  line-height: 1.1;
+}
+.tool__cost {
+  font-family: var(--font-label);
+  font-size: var(--fs-label);
+}
+.tool__key {
+  position: absolute;
+  top: -11px;
+  right: 8px;
+  padding: 0 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 6px;
+  background: var(--paper);
+  font-family: var(--font-label);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.home__error {
+  font-weight: 700;
+  color: var(--brick-deep);
+}
+.home__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+/* ---------- town / mode picker ---------- */
+.home__town {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: clamp(24px, 5vw, 72px);
+  padding-bottom: calc(var(--ground) - 30px);
+  align-self: end;
+}
+.mode {
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  width: clamp(150px, 15vw, 210px);
+  cursor: pointer;
+  transition: transform var(--t-med) var(--ease-out);
+}
+.mode:hover {
+  transform: translateY(-6px);
+}
+.mode:has(:focus-visible) {
+  outline: 3px dashed var(--focus);
+  outline-offset: 8px;
+  border-radius: 8px;
+}
+.mode .building {
+  width: 100%;
+}
+.mode__label {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+  font-size: var(--fs-lead);
+  white-space: normal;
+}
+.mode__label strong {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  text-transform: uppercase;
+  font-size: var(--fs-h3);
+  line-height: 1;
+}
+.mode__label strong {
+  white-space: nowrap;
+  font-size: clamp(1.125rem, 4.6vw, var(--fs-h3));
+}
+.mode[data-selected] .mode__label strong {
+  background: var(--bus);
+  padding: 2px 8px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+}
+.mode__window {
+  display: flex;
+  justify-content: space-around;
+  width: 100%;
+}
+.mode__window span {
+  width: 26%;
+  aspect-ratio: 1.3;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: var(--sky);
+}
+.mode[data-selected] .mode__window[data-team="0"] span:first-child,
+.mode[data-selected] .mode__window[data-team="1"] span:last-child {
+  background: var(--bus);
+}
+
+/* ---------- region signpost ---------- */
+.home__post {
+  align-self: flex-end;
+  margin-bottom: -34px;
+}
+
+@media (max-width: 960px) {
+  .home {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .cloud {
+    display: none;
+  }
+  .home__intro {
+    padding-bottom: 0;
+  }
+  .home__town {
+    padding-bottom: calc(var(--ground) + 24px);
+  }
+  .home__town {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 520px) {
+  .home__row {
+    grid-template-columns: 1fr;
+  }
+  .levels__row {
+    grid-template-columns: 1fr;
+  }
+  .wordmark {
+    -webkit-text-stroke-width: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud {
+    animation: none;
+  }
+}

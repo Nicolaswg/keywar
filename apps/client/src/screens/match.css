@@ -1,0 +1,578 @@
+.match {
+  --scene: var(--sky-wash);
+  --ground: 54px;
+  position: relative;
+  min-height: calc(100vh - 20px);
+  margin: 10px;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border: var(--line);
+  border-radius: var(--radius);
+  background:
+    var(--grain),
+    linear-gradient(var(--grass), var(--grass)) 0 100% / 100% var(--ground) no-repeat,
+    var(--scene);
+  transition: background-color var(--t-slow) var(--ease-out);
+  overflow: hidden;
+}
+/* Sudden death: the sky turns to dusk. */
+.match[data-sudden] {
+  --scene: var(--sand);
+}
+.match::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 var(--ground) 0;
+  border-top: var(--line);
+  pointer-events: none;
+}
+
+.match__bar {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-3) var(--s-4) 0;
+}
+.match__clock {
+  font-size: var(--fs-h3);
+  min-width: 112px;
+  text-align: center;
+}
+.match__phase {
+  font-size: var(--fs-lead);
+}
+.match__leave {
+  position: absolute;
+  right: var(--s-4);
+  top: var(--s-3);
+}
+
+.match__arena {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(560px, 3.2fr) minmax(0, 1fr);
+  align-items: end;
+  gap: var(--s-5);
+  padding: var(--s-3) var(--s-5) calc(var(--ground) - 6px);
+}
+.match__side {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-end;
+  gap: var(--s-4);
+}
+/* 3v3: each side is a little street of three narrower buildings. */
+.match[data-mode="team6"] .match__side {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: var(--s-2);
+}
+.match[data-mode="team6"] .rival {
+  max-width: none;
+}
+.match[data-mode="team6"] .rival .building {
+  --floor-h: 36px !important;
+}
+.match[data-mode="team6"] .rival .building__floor {
+  padding-inline: var(--s-1);
+}
+.match[data-mode="team6"] .rival .building__floor:nth-child(3) {
+  display: none;
+}
+.match[data-mode="team6"] .rival__name {
+  font-size: var(--fs-label);
+  text-transform: none;
+  font-family: var(--font-key);
+  font-variation-settings: normal;
+  font-size: 0.875rem;
+  line-height: 1.15;
+  overflow-wrap: normal;
+  hyphens: auto;
+}
+.match[data-mode="team6"] .rival__hook .sign {
+  font-size: var(--fs-label);
+  padding-inline: var(--s-2);
+}
+.match[data-mode="team6"] .rival__hook .sign__small {
+  display: none;
+}
+.match[data-mode="team6"] .match__arena {
+  grid-template-columns: minmax(0, 1fr) minmax(560px, 2.3fr) minmax(0, 1fr);
+}
+
+/* ---------- my building ---------- */
+.mine {
+  --wall: var(--team-0);
+  display: grid;
+  min-width: 0;
+  width: 100%;
+  max-width: 880px;
+  justify-self: center;
+}
+.mine__top {
+  position: relative;
+  display: grid;
+  justify-items: center;
+}
+.mine__top .building__roof {
+  width: calc(100% + 18px);
+  height: 46px;
+}
+.mine__top .building__roof path {
+  fill: var(--wall);
+  stroke: var(--ink);
+  stroke-width: 2.5;
+}
+.mine__tower {
+  position: absolute;
+  right: 9%;
+  bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.mine__tower .callout {
+  font-size: var(--fs-lead);
+}
+
+.mine__body {
+  position: relative;
+  container-type: inline-size;
+  border: var(--line);
+  border-left: 14px solid var(--wall);
+  border-right: 14px solid var(--wall);
+  background: var(--paper-shade);
+  box-shadow:
+    inset 2.5px 0 0 var(--ink),
+    inset -2.5px 0 0 var(--ink),
+    var(--ground-shadow);
+}
+.mine__plate {
+  position: absolute;
+  top: -36px;
+  left: 50%;
+  translate: -50% 0;
+  z-index: 3;
+  font-size: var(--fs-lead);
+}
+.mine__lane {
+  position: relative;
+  /* whatever the viewport leaves after bar, roof, keyboard and street */
+  height: clamp(220px, calc(100vh - 100cqw / 14.5 * 3.2 - 330px), 600px);
+}
+.mine__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.mine__sabotage {
+  position: absolute;
+  top: var(--s-5);
+  left: var(--s-3);
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+  z-index: 2;
+}
+.sabotage {
+  font-size: var(--fs-body);
+  animation: sign-swing 600ms var(--ease-squash);
+  transform-origin: top center;
+}
+@keyframes sign-swing {
+  0% {
+    rotate: -14deg;
+    scale: 0.7;
+  }
+  60% {
+    rotate: 5deg;
+  }
+  100% {
+    rotate: 0deg;
+    scale: 1;
+  }
+}
+
+/* Judgement stamp near the hit line */
+.judge {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  text-transform: uppercase;
+  font-weight: 800;
+  font-size: 2.5rem;
+  line-height: 1;
+  -webkit-text-stroke: 2.5px var(--ink);
+  paint-order: stroke fill;
+  pointer-events: none;
+  animation: judge-pop 650ms var(--ease-out) forwards;
+}
+.judge small {
+  font-size: 0.6em;
+}
+.judge[data-j="perfect"] {
+  color: var(--bus);
+}
+.judge[data-j="great"] {
+  color: var(--sky);
+}
+.judge[data-j="good"] {
+  color: var(--paper);
+}
+.judge[data-j="miss"],
+.judge[data-j="wrong"] {
+  color: var(--brick);
+  rotate: -6deg;
+}
+@keyframes judge-pop {
+  0% {
+    scale: 0.6;
+    opacity: 0;
+  }
+  18% {
+    scale: 1.12;
+    opacity: 1;
+  }
+  35% {
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: -50% -26px;
+  }
+}
+
+.countdown {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  background: rgb(248 243 232 / 0.86);
+  z-index: 4;
+}
+.countdown__label {
+  font-family: var(--font-label);
+  font-size: var(--fs-h3);
+}
+.countdown__n {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 900;
+  font-size: 6rem;
+  line-height: 1;
+  color: var(--brick);
+  -webkit-text-stroke: 3px var(--ink);
+  paint-order: stroke fill;
+  animation: judge-pop 1000ms var(--ease-out) both;
+  animation-name: count-pop;
+}
+@keyframes count-pop {
+  0% {
+    scale: 1.6;
+    opacity: 0;
+  }
+  25% {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+/* ---------- the keyboard workshop floor ---------- */
+.workshop {
+  --u: calc(100cqw / 14.5);
+  position: relative;
+  height: calc(var(--u) * 3.2);
+  margin: 0;
+  border-top: 5px solid var(--sand-deep);
+  box-shadow: 0 -2.5px 0 var(--ink);
+  background:
+    repeating-linear-gradient(0deg, transparent 0 calc(var(--u) * 0.8 - 1.5px), rgb(74 46 28 / 0.18) calc(var(--u) * 0.8 - 1.5px) calc(var(--u) * 0.8)),
+    var(--sand);
+}
+.wkey {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  width: calc(var(--u) * 0.88);
+  height: calc(var(--u) * 0.72);
+  margin-top: calc(var(--u) * 0.05);
+  translate: -50% 0;
+  border: 2px solid var(--ink);
+  border-radius: 7px 6px 7px 5px;
+  background: var(--paper);
+  box-shadow: inset 0 -4px 0 rgb(74 46 28 / 0.14);
+  font-family: var(--font-key);
+  font-weight: 700;
+  font-size: clamp(0.75rem, calc(var(--u) * 0.38), 1.25rem);
+  line-height: 1;
+  transition:
+    background-color 80ms linear,
+    transform 60ms linear;
+}
+.wkey[data-state="next"] {
+  background: var(--bus);
+}
+/* The crate is inside the hit window: press now. */
+.wkey[data-state="now"] {
+  background: var(--grass-deep);
+  color: var(--paper);
+  border-width: 3px;
+  transform: scale(1.12);
+  z-index: 1;
+}
+.wkey[data-state="down"] {
+  background: var(--sand-deep);
+  transform: translateY(2px);
+  box-shadow: none;
+}
+
+/* ---------- street level: skills + streak ---------- */
+.mine__street {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--s-4);
+  padding-top: var(--s-3);
+}
+.skill {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  padding: var(--s-2) var(--s-3);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--paper);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--paint-depth);
+}
+.skill:last-child {
+  justify-self: end;
+}
+.skill[data-state="ready"] {
+  background: var(--bus);
+  animation: ready-nudge 500ms var(--ease-squash);
+}
+.skill[data-state="noink"],
+.skill[data-state="cooldown"] {
+  background-image: repeating-linear-gradient(-45deg, transparent 0 7px, rgb(74 46 28 / 0.16) 7px 9px);
+}
+.skill__key {
+  padding: 0 6px;
+  border: 1.5px solid var(--ink);
+  border-radius: 5px;
+  background: var(--paper);
+  font-family: var(--font-label);
+  font-size: 0.875rem;
+}
+.skill__name {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 700;
+  font-size: var(--fs-lead);
+  line-height: 1.05;
+}
+.skill__meta {
+  font-family: var(--font-label);
+  font-size: var(--fs-label);
+}
+@keyframes ready-nudge {
+  40% {
+    rotate: -3deg;
+    scale: 1.05;
+  }
+}
+
+.streak {
+  --badge: var(--paper);
+  --badge-text: var(--ink);
+  display: grid;
+  justify-items: center;
+}
+.streak[data-mult="2"] {
+  --badge: var(--sky);
+  --badge-text: var(--paper);
+}
+.streak[data-mult="3"] {
+  --badge: var(--grass);
+  --badge-text: var(--paper);
+}
+.streak[data-mult="4"] {
+  --badge: var(--brick);
+  --badge-text: var(--paper);
+}
+.streak__n {
+  display: grid;
+  place-items: center;
+  min-width: 72px;
+  height: 72px;
+  padding: 0 var(--s-2);
+  border: var(--line);
+  border-radius: 50%;
+  background: var(--badge);
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 900;
+  font-size: 2.25rem;
+  line-height: 1;
+  color: var(--badge-text);
+  -webkit-text-stroke: 2.5px var(--ink);
+  paint-order: stroke fill;
+  box-shadow: var(--paint-depth);
+  transition: background-color var(--t-med) var(--ease-out);
+}
+.streak__label {
+  font-family: var(--font-label);
+  font-size: var(--fs-lead);
+}
+.streak__label strong {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+}
+
+.mine__hp {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  padding-top: var(--s-2);
+  font-family: var(--font-label);
+  font-size: var(--fs-lead);
+}
+.mine__hp .bricks {
+  width: min(320px, 60%);
+  grid-template-columns: repeat(10, 1fr);
+}
+
+/* ---------- rivals ---------- */
+.rival {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: var(--s-2);
+  width: 100%;
+  max-width: 230px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: center;
+  cursor: crosshair;
+}
+.rival:disabled {
+  cursor: default;
+}
+.rival .building {
+  width: 100%;
+}
+.rival__hook {
+  display: grid;
+  justify-items: center;
+}
+.rival__hook::after {
+  content: "";
+  width: 2px;
+  height: 14px;
+  background: var(--ink);
+}
+.rival__hook .sign {
+  font-size: var(--fs-body);
+  animation: sign-swing 500ms var(--ease-squash);
+  transform-origin: bottom center;
+}
+.rival[data-target] .building__body {
+  outline: 3px dashed var(--brick);
+  outline-offset: 5px;
+}
+.rival__name {
+  width: 100%;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 700;
+  font-size: var(--fs-body);
+  overflow-wrap: anywhere;
+}
+.rival__tag {
+  display: block;
+  font-family: var(--font-label);
+  font-weight: 400;
+}
+.rival__wall {
+  width: 100%;
+}
+.rival__stats {
+  width: 100%;
+  font-family: var(--font-label);
+  font-size: var(--fs-label);
+}
+.rival__fx {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: 32px;
+}
+.rival__cast {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 800;
+  font-size: var(--fs-lead);
+  color: var(--brick);
+  -webkit-text-stroke: 1.5px var(--ink);
+  paint-order: stroke fill;
+  animation: judge-pop 2.2s var(--ease-out) forwards;
+  animation-name: cast-pop;
+}
+@keyframes cast-pop {
+  0% {
+    scale: 0.5;
+    opacity: 0;
+  }
+  12% {
+    scale: 1.1;
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@media (max-width: 1180px) {
+  .match__arena {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+  .match__side {
+    order: -1;
+  }
+  .mine {
+    order: 1;
+  }
+  .match__side .building__floor:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .judge,
+  .countdown__n,
+  .rival__cast,
+  .sabotage,
+  .skill[data-state="ready"] {
+    animation-duration: 1ms;
+  }
+  .judge {
+    animation: none;
+    opacity: 1;
+  }
+}

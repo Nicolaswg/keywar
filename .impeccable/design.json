@@ -1,0 +1,489 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-01T18:57:41.031Z",
+  "title": "Design System: KeyWar",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Paper",
+        "canonical": "#f8f3e8",
+        "tonalRamp": [
+          "oklch(15% 0.009 86.4)",
+          "oklch(25% 0.016 86.4)",
+          "oklch(38% 0.016 86.4)",
+          "oklch(50% 0.016 86.4)",
+          "oklch(62% 0.016 86.4)",
+          "oklch(74% 0.016 86.4)",
+          "oklch(85% 0.016 86.4)",
+          "oklch(95% 0.009 86.4)"
+        ]
+      },
+      "paper-shade": {
+        "role": "neutral",
+        "displayName": "Paper Shade",
+        "canonical": "#efe6d3",
+        "tonalRamp": [
+          "oklch(15% 0.016 85.7)",
+          "oklch(25% 0.027 85.7)",
+          "oklch(38% 0.027 85.7)",
+          "oklch(50% 0.027 85.7)",
+          "oklch(62% 0.027 85.7)",
+          "oklch(74% 0.027 85.7)",
+          "oklch(85% 0.027 85.7)",
+          "oklch(95% 0.016 85.7)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#4a2e1c",
+        "tonalRamp": [
+          "oklch(15% 0.030 52.9)",
+          "oklch(25% 0.050 52.9)",
+          "oklch(38% 0.050 52.9)",
+          "oklch(50% 0.050 52.9)",
+          "oklch(62% 0.050 52.9)",
+          "oklch(74% 0.050 52.9)",
+          "oklch(85% 0.050 52.9)",
+          "oklch(95% 0.030 52.9)"
+        ]
+      },
+      "ink-soft": {
+        "role": "neutral",
+        "displayName": "Ink Soft",
+        "canonical": "#6f4f38",
+        "tonalRamp": [
+          "oklch(15% 0.033 56.5)",
+          "oklch(25% 0.056 56.5)",
+          "oklch(38% 0.056 56.5)",
+          "oklch(50% 0.056 56.5)",
+          "oklch(62% 0.056 56.5)",
+          "oklch(74% 0.056 56.5)",
+          "oklch(85% 0.056 56.5)",
+          "oklch(95% 0.033 56.5)"
+        ]
+      },
+      "brick": {
+        "role": "secondary",
+        "displayName": "Brick Red",
+        "canonical": "#c8402f",
+        "tonalRamp": [
+          "oklch(15% 0.105 30.4)",
+          "oklch(25% 0.175 30.4)",
+          "oklch(38% 0.175 30.4)",
+          "oklch(50% 0.175 30.4)",
+          "oklch(62% 0.175 30.4)",
+          "oklch(74% 0.175 30.4)",
+          "oklch(85% 0.175 30.4)",
+          "oklch(95% 0.105 30.4)"
+        ]
+      },
+      "brick-deep": {
+        "role": "secondary",
+        "displayName": "Deep Brick",
+        "canonical": "#9b2e21",
+        "tonalRamp": [
+          "oklch(15% 0.088 30.2)",
+          "oklch(25% 0.147 30.2)",
+          "oklch(38% 0.147 30.2)",
+          "oklch(50% 0.147 30.2)",
+          "oklch(62% 0.147 30.2)",
+          "oklch(74% 0.147 30.2)",
+          "oklch(85% 0.147 30.2)",
+          "oklch(95% 0.088 30.2)"
+        ]
+      },
+      "bus": {
+        "role": "primary",
+        "displayName": "School-Bus Yellow",
+        "canonical": "#f5c518",
+        "tonalRamp": [
+          "oklch(15% 0.101 90.4)",
+          "oklch(25% 0.168 90.4)",
+          "oklch(38% 0.168 90.4)",
+          "oklch(50% 0.168 90.4)",
+          "oklch(62% 0.168 90.4)",
+          "oklch(74% 0.168 90.4)",
+          "oklch(85% 0.168 90.4)",
+          "oklch(95% 0.101 90.4)"
+        ]
+      },
+      "bus-deep": {
+        "role": "primary",
+        "displayName": "Pressed Bus",
+        "canonical": "#d9a800",
+        "tonalRamp": [
+          "oklch(15% 0.093 87.5)",
+          "oklch(25% 0.154 87.5)",
+          "oklch(38% 0.154 87.5)",
+          "oklch(50% 0.154 87.5)",
+          "oklch(62% 0.154 87.5)",
+          "oklch(74% 0.154 87.5)",
+          "oklch(85% 0.154 87.5)",
+          "oklch(95% 0.093 87.5)"
+        ]
+      },
+      "grass": {
+        "role": "tertiary",
+        "displayName": "Grass Green",
+        "canonical": "#4e9a3f",
+        "tonalRamp": [
+          "oklch(15% 0.089 140.5)",
+          "oklch(25% 0.148 140.5)",
+          "oklch(38% 0.148 140.5)",
+          "oklch(50% 0.148 140.5)",
+          "oklch(62% 0.148 140.5)",
+          "oklch(74% 0.148 140.5)",
+          "oklch(85% 0.148 140.5)",
+          "oklch(95% 0.089 140.5)"
+        ]
+      },
+      "grass-deep": {
+        "role": "tertiary",
+        "displayName": "Deep Grass",
+        "canonical": "#37772b",
+        "tonalRamp": [
+          "oklch(15% 0.077 140.6)",
+          "oklch(25% 0.128 140.6)",
+          "oklch(38% 0.128 140.6)",
+          "oklch(50% 0.128 140.6)",
+          "oklch(62% 0.128 140.6)",
+          "oklch(74% 0.128 140.6)",
+          "oklch(85% 0.128 140.6)",
+          "oklch(95% 0.077 140.6)"
+        ]
+      },
+      "sky": {
+        "role": "tertiary",
+        "displayName": "Sky",
+        "canonical": "#9fd0f0",
+        "tonalRamp": [
+          "oklch(15% 0.041 237.3)",
+          "oklch(25% 0.068 237.3)",
+          "oklch(38% 0.068 237.3)",
+          "oklch(50% 0.068 237.3)",
+          "oklch(62% 0.068 237.3)",
+          "oklch(74% 0.068 237.3)",
+          "oklch(85% 0.068 237.3)",
+          "oklch(95% 0.041 237.3)"
+        ]
+      },
+      "sky-deep": {
+        "role": "tertiary",
+        "displayName": "Deep Sky",
+        "canonical": "#2f6fae",
+        "tonalRamp": [
+          "oklch(15% 0.071 250.8)",
+          "oklch(25% 0.119 250.8)",
+          "oklch(38% 0.119 250.8)",
+          "oklch(50% 0.119 250.8)",
+          "oklch(62% 0.119 250.8)",
+          "oklch(74% 0.119 250.8)",
+          "oklch(85% 0.119 250.8)",
+          "oklch(95% 0.071 250.8)"
+        ]
+      },
+      "sky-wash": {
+        "role": "neutral",
+        "displayName": "Sky Wash",
+        "canonical": "#cfe6f4",
+        "tonalRamp": [
+          "oklch(15% 0.019 234.4)",
+          "oklch(25% 0.031 234.4)",
+          "oklch(38% 0.031 234.4)",
+          "oklch(50% 0.031 234.4)",
+          "oklch(62% 0.031 234.4)",
+          "oklch(74% 0.031 234.4)",
+          "oklch(85% 0.031 234.4)",
+          "oklch(95% 0.019 234.4)"
+        ]
+      },
+      "sand": {
+        "role": "tertiary",
+        "displayName": "Sand",
+        "canonical": "#e4bd85",
+        "tonalRamp": [
+          "oklch(15% 0.051 76.1)",
+          "oklch(25% 0.085 76.1)",
+          "oklch(38% 0.085 76.1)",
+          "oklch(50% 0.085 76.1)",
+          "oklch(62% 0.085 76.1)",
+          "oklch(74% 0.085 76.1)",
+          "oklch(85% 0.085 76.1)",
+          "oklch(95% 0.051 76.1)"
+        ]
+      },
+      "sand-deep": {
+        "role": "tertiary",
+        "displayName": "Sand Deep",
+        "canonical": "#c99a5c",
+        "tonalRamp": [
+          "oklch(15% 0.058 72.9)",
+          "oklch(25% 0.097 72.9)",
+          "oklch(38% 0.097 72.9)",
+          "oklch(50% 0.097 72.9)",
+          "oklch(62% 0.097 72.9)",
+          "oklch(74% 0.097 72.9)",
+          "oklch(85% 0.097 72.9)",
+          "oklch(95% 0.058 72.9)"
+        ]
+      },
+      "cement": {
+        "role": "neutral",
+        "displayName": "Cement",
+        "canonical": "#9b958a",
+        "tonalRamp": [
+          "oklch(15% 0.010 82.8)",
+          "oklch(25% 0.017 82.8)",
+          "oklch(38% 0.017 82.8)",
+          "oklch(50% 0.017 82.8)",
+          "oklch(62% 0.017 82.8)",
+          "oklch(74% 0.017 82.8)",
+          "oklch(85% 0.017 82.8)",
+          "oklch(95% 0.010 82.8)"
+        ]
+      },
+      "road": {
+        "role": "neutral",
+        "displayName": "Road",
+        "canonical": "#b9b2a4",
+        "tonalRamp": [
+          "oklch(15% 0.013 84.6)",
+          "oklch(25% 0.021 84.6)",
+          "oklch(38% 0.021 84.6)",
+          "oklch(50% 0.021 84.6)",
+          "oklch(62% 0.021 84.6)",
+          "oklch(74% 0.021 84.6)",
+          "oklch(85% 0.021 84.6)",
+          "oklch(95% 0.013 84.6)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Results headline and wordmark; stroked moment words."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Home tagline, queue and section titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Go button, mode names, match clock, sign text."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "Pitch copy and field input."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text."
+      },
+      "key": {
+        "displayName": "Key",
+        "purpose": "Key legends on keycaps, workshop keys and canvas crates."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Handwritten callouts, sub-lines, stats and hints."
+      }
+    },
+    "shadows": [
+      {
+        "name": "paint-depth",
+        "value": "inset 0 -5px 0 rgb(74 46 28 / 0.16)",
+        "purpose": "Painted darker bottom band inside filled shapes; pressed state keeps only this."
+      },
+      {
+        "name": "ground-shadow",
+        "value": "0 6px 14px -6px rgb(74 46 28 / 0.35)",
+        "purpose": "Soft shadow under objects standing on the ground: buttons at rest, form card, building bodies."
+      },
+      {
+        "name": "cut-wall",
+        "value": "inset 2.5px 0 0 #4a2e1c, inset -2.5px 0 0 #4a2e1c",
+        "purpose": "Inner ink line inside a building's team-coloured side walls."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Default for lifts, presses, meter fills, brick falls and pops."
+      },
+      {
+        "name": "ease-squash",
+        "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "purpose": "Overshoot for sign swings, skill-ready nudge and seat arrivals."
+      },
+      {
+        "name": "t-fast",
+        "value": "120ms",
+        "purpose": "Button and tool hover/press."
+      },
+      {
+        "name": "t-med",
+        "value": "220ms",
+        "purpose": "Mode lift, meter fill, streak badge colour."
+      },
+      {
+        "name": "t-slow",
+        "value": "420ms",
+        "purpose": "Brick loss, sky dusk shift, seat arrival; also the stamp lifetime on canvas."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "durations 0ms",
+        "purpose": "All duration tokens collapse to 0; quake shake and cloud drift stop."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "phone",
+        "value": "520px"
+      },
+      {
+        "name": "home-stack",
+        "value": "960px"
+      },
+      {
+        "name": "arena-stack",
+        "value": "1180px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Go Button",
+      "kind": "button",
+      "refersTo": "button-go",
+      "description": "The one primary action per screen (FIGHT!): bus yellow, 64px, display caps.",
+      "html": "<button class=\"ds-btn ds-btn-go\">¡A PELEAR!</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:8px 24px;border:2.5px solid var(--ink,#4a2e1c);border-radius:14px 11px 13px 10px / 11px 13px 10px 14px;background:var(--paper,#f8f3e8);color:var(--ink,#4a2e1c);font-family:\"Shantell Sans Variable\",\"Shantell Sans\",cursive;font-variation-settings:\"INFM\" 100,\"BNCE\" 0;font-weight:700;font-size:1.3125rem;line-height:1;text-transform:uppercase;cursor:pointer;box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16),0 6px 14px -6px rgb(74 46 28 / .35);transition:transform 120ms cubic-bezier(.16,1,.3,1),background-color 120ms cubic-bezier(.16,1,.3,1),box-shadow 120ms cubic-bezier(.16,1,.3,1)}.ds-btn:hover{transform:translateY(-2px) rotate(-.6deg)}.ds-btn:active{transform:translateY(1px) scale(.98);box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16)}.ds-btn:focus-visible{outline:3px dashed var(--sky-deep,#2f6fae);outline-offset:4px}.ds-btn-go{background:var(--bus,#f5c518);font-size:1.625rem;min-height:64px;padding-inline:32px}.ds-btn-go:active{background:var(--bus-deep,#d9a800)}"
+    },
+    {
+      "name": "Plain Button",
+      "kind": "button",
+      "refersTo": "button-plain",
+      "description": "Secondary actions (practice with bots, play again).",
+      "html": "<button class=\"ds-btn\">Practice with bots</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:8px 24px;border:2.5px solid var(--ink,#4a2e1c);border-radius:14px 11px 13px 10px / 11px 13px 10px 14px;background:var(--paper,#f8f3e8);color:var(--ink,#4a2e1c);font-family:\"Shantell Sans Variable\",\"Shantell Sans\",cursive;font-variation-settings:\"INFM\" 100,\"BNCE\" 0;font-weight:700;font-size:1.3125rem;line-height:1;text-transform:uppercase;cursor:pointer;box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16),0 6px 14px -6px rgb(74 46 28 / .35);transition:transform 120ms cubic-bezier(.16,1,.3,1),box-shadow 120ms cubic-bezier(.16,1,.3,1)}.ds-btn:hover{transform:translateY(-2px) rotate(-.6deg)}.ds-btn:active{transform:translateY(1px) scale(.98);box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16)}.ds-btn:focus-visible{outline:3px dashed var(--sky-deep,#2f6fae);outline-offset:4px}.ds-btn:disabled{cursor:not-allowed;transform:none;background-image:repeating-linear-gradient(-45deg,transparent 0 7px,rgb(74 46 28 / .18) 7px 9px);color:var(--ink-soft,#6f4f38)}"
+    },
+    {
+      "name": "Field",
+      "kind": "input",
+      "refersTo": "field-input",
+      "description": "Nickname-style text field with a handwritten label.",
+      "html": "<div class=\"ds-field\"><label class=\"ds-field__label\" for=\"ds-nick\">Nickname</label><input id=\"ds-nick\" class=\"ds-field__input\" placeholder=\"e.g. Key Cat\"></div>",
+      "css": ".ds-field{display:grid;gap:4px}.ds-field__label{font-family:\"Patrick Hand\",\"Comic Neue\",cursive;font-size:1.3125rem;line-height:1.1;color:var(--ink,#4a2e1c)}.ds-field__input{min-height:52px;padding:8px 16px;border:2.5px solid var(--ink,#4a2e1c);border-radius:8px 6px 8px 7px / 7px 8px 6px 8px;background:#fffdf8;color:var(--ink,#4a2e1c);font-family:Andika,\"Segoe UI\",sans-serif;font-weight:700;font-size:1.3125rem}.ds-field__input::placeholder{color:var(--ink-soft,#6f4f38);font-weight:400}.ds-field__input:focus-visible{outline:none;border-color:var(--sky-deep,#2f6fae);box-shadow:0 0 0 3px var(--sky,#9fd0f0)}"
+    },
+    {
+      "name": "Callout",
+      "kind": "custom",
+      "refersTo": "callout",
+      "description": "Handwritten label with a hairline pointer and dot terminus; names parts of the scene.",
+      "html": "<span class=\"ds-callout\">hit line</span>",
+      "css": ".ds-callout{position:relative;display:inline-flex;align-items:center;padding-left:34px;font-family:\"Patrick Hand\",\"Comic Neue\",cursive;font-size:1rem;line-height:1.1;color:var(--ink,#4a2e1c);white-space:nowrap}.ds-callout::before{content:\"\";position:absolute;left:0;top:50%;width:28px;height:1.25px;background:var(--ink,#4a2e1c);transform:rotate(-8deg);transform-origin:right center}.ds-callout::after{content:\"\";position:absolute;left:-2px;top:calc(50% + 2px);width:5px;height:5px;border-radius:50%;background:var(--ink,#4a2e1c)}"
+    },
+    {
+      "name": "Sign",
+      "kind": "custom",
+      "refersTo": "sign",
+      "description": "Painted board on posts: nameplates, clock, region signpost, sabotage notices.",
+      "html": "<div class=\"ds-sign\"><span class=\"ds-sign__small\">Region</span><span>local · 1 ms</span></div>",
+      "css": ".ds-sign{position:relative;display:inline-grid;gap:2px;margin-bottom:34px;padding:8px 16px;border:2.5px solid var(--ink,#4a2e1c);border-radius:8px 6px 8px 7px / 7px 8px 6px 8px;background:var(--paper,#f8f3e8);box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16);color:var(--ink,#4a2e1c);font-family:\"Shantell Sans Variable\",\"Shantell Sans\",cursive;font-variation-settings:\"INFM\" 100,\"BNCE\" 0;font-weight:700;line-height:1.05}.ds-sign__small{font-family:\"Patrick Hand\",\"Comic Neue\",cursive;font-weight:400;font-size:1rem}.ds-sign::before,.ds-sign::after{content:\"\";position:absolute;top:100%;width:7px;height:34px;background:var(--sand-deep,#c99a5c);border:2px solid var(--ink,#4a2e1c);border-top:0}.ds-sign::before{left:18%}.ds-sign::after{right:18%}"
+    },
+    {
+      "name": "Keycap",
+      "kind": "custom",
+      "refersTo": "keycap",
+      "description": "One key unit (the crate module); next key in bus yellow, held key in sand.",
+      "html": "<span class=\"ds-key\">a</span><span class=\"ds-key\" data-state=\"next\">h</span><span class=\"ds-key\" data-state=\"down\">j</span>",
+      "css": ".ds-key{display:inline-grid;place-items:center;width:44px;height:44px;margin-right:8px;border:2.5px solid var(--ink,#4a2e1c);border-radius:8px 6px 8px 7px / 7px 8px 6px 8px;background:var(--paper,#f8f3e8);box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16);color:var(--ink,#4a2e1c);font-family:Andika,\"Segoe UI\",sans-serif;font-weight:700;font-size:1.375rem;line-height:1}.ds-key[data-state=\"next\"]{background:var(--bus,#f5c518)}.ds-key[data-state=\"down\"]{background:var(--sand,#e4bd85);transform:translateY(2px);box-shadow:none}"
+    },
+    {
+      "name": "Tool Card",
+      "kind": "chip",
+      "refersTo": "skill-card",
+      "description": "Selectable skill/sabotage tool with its bound key tag; selected fills bus yellow.",
+      "html": "<button class=\"ds-tool\" aria-pressed=\"true\"><span class=\"ds-tool__key\">Space</span><span><b>Cement mixer</b><br><small class=\"ds-tool__kind\">sabotage</small></span><span class=\"ds-tool__cost\">40</span></button>",
+      "css": ".ds-tool{position:relative;display:flex;justify-content:space-between;align-items:center;gap:8px;min-width:170px;min-height:44px;padding:4px 12px;border:2px solid var(--ink,#4a2e1c);border-radius:8px 6px 8px 7px / 7px 8px 6px 8px;background:var(--paper,#f8f3e8);color:var(--ink,#4a2e1c);font-family:Andika,\"Segoe UI\",sans-serif;text-align:left;cursor:pointer;transition:transform 120ms cubic-bezier(.16,1,.3,1)}.ds-tool:hover{transform:rotate(-1deg)}.ds-tool:focus-visible{outline:3px dashed var(--sky-deep,#2f6fae);outline-offset:4px}.ds-tool[aria-pressed=\"true\"]{background:var(--bus,#f5c518);box-shadow:inset 0 -5px 0 rgb(74 46 28 / .16)}.ds-tool__kind{font-family:\"Patrick Hand\",cursive;font-size:.9375rem;color:var(--brick-deep,#9b2e21)}.ds-tool__cost{font-family:\"Patrick Hand\",cursive}.ds-tool__key{position:absolute;top:-11px;right:8px;padding:0 6px;border:1.5px solid var(--ink,#4a2e1c);border-radius:6px;background:var(--paper,#f8f3e8);font-family:\"Patrick Hand\",cursive;font-size:.875rem;line-height:1.3}"
+    },
+    {
+      "name": "Brick Wall Meter",
+      "kind": "custom",
+      "refersTo": "bricks",
+      "description": "HP as bricks in offset courses; lost bricks dashed and empty.",
+      "html": "<div class=\"ds-bricks\"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i class=\"gone\"></i><i class=\"gone\"></i></div>",
+      "css": ".ds-bricks{display:grid;grid-template-columns:repeat(5,1fr);gap:3px;width:180px;padding:4px;border:1.25px solid var(--ink,#4a2e1c);border-radius:4px;background:var(--paper,#f8f3e8)}.ds-bricks i{height:12px;border:1.5px solid var(--ink,#4a2e1c);border-radius:2px;background:var(--brick,#c8402f);box-shadow:inset 0 -3px 0 rgb(74 46 28 / .2)}.ds-bricks i:nth-child(6){margin-left:6px}.ds-bricks i.gone{background:transparent;border-style:dashed;border-color:rgb(74 46 28 / .45);box-shadow:none}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Busytown Cross-Section",
+    "overview": "KeyWar is a picture-book town seen in cutaway. Every player is a building with its facade removed; keys arrive as crates riding down the floors and are stamped onto a keyboard-shaped workshop floor at street level, while hits knock bricks out of rival walls. The system is flat gouache on paper: solid fills, one warm brown outline on every shape, small handwritten labels with hairline pointers naming things, and chunky hand-printed display caps. It refuses the dark neon note-highway outright; there is no glow, no gradient lighting, no dark mode.\n\nThe shipped ground is a washed sky (`sky-wash`) spread held inside a paper frame: the page body is grained paper, and each screen (home, queue, match, results) is a hand-cornered panel inset 14px (10px in the match) from the viewport, outlined in ink, with sky above and a grass band (plus a road on home) below. Scenery is geometric architecture, clouds and signposts. Illustrated floor interiors, worker and vehicle art for skills, and painted-brick texture are not built; floors are empty paper-shade bays separated by sand beams, and brick is a flat team-coloured border. Treat these as open, not as rules.\n\nDensity is playful on home and strict in the match: the match HUD follows legibility-first rules (key legends in Andika, large stamped judgements, colour always paired with shape or text).",
+    "keyCharacteristics": [
+      "Flat gouache fills from a nine-hue paint box; no gradients except functional stripes (road dashes, hatching, plank lines).",
+      "One ink outline (2.5px `#4a2e1c`) on every filled shape, in DOM and on canvas alike.",
+      "Hand-cut, uneven corner radii; nothing is perfectly round-cornered.",
+      "Handwritten Patrick Hand labels with 1.25px hairline pointers and a dot terminus name parts of the scene.",
+      "Depth is painted: a darker bottom band inside shapes plus a soft ground shadow.",
+      "Canvas reads its palette from the CSS tokens at runtime, so lane and DOM share one paint box."
+    ],
+    "rules": [
+      {
+        "name": "The One Ink Rule",
+        "body": "Every outline, stroke, pointer and text run is ink (#4a2e1c). No black, no grey borders, no second outline colour. The only exceptions are the brick-red rubber stamp and the brick dashed target ring, which are printed marks, not outlines.",
+        "section": "colors"
+      },
+      {
+        "name": "The Yellow Means Now Rule",
+        "body": "Bus yellow marks the single thing to act on: the next key, the primary action, the selected or ready option. Do not use it as decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Never-Colour-Alone Rule",
+        "body": "Teams carry a roof shape (gable, flat, dome) as well as a wall colour; judgements carry a word; unavailable states carry diagonal hatching; modified crates carry a CTRL or SHIFT label. Colour is never the only carrier of meaning.",
+        "section": "colors"
+      },
+      {
+        "name": "The Stroked Shout Rule",
+        "body": "Large moment words (wordmark, results headline, countdown numerals, judgements, streak number, rival \"cast\" pop) are display caps in a paint colour with a 2.5-3px ink text stroke and `paint-order: stroke fill`. Running text is never stroked.",
+        "section": "typography"
+      },
+      {
+        "name": "The Legible Key Rule",
+        "body": "Anything the player must read to type (key legends, crate letters) is Andika 700, never the display or label face.",
+        "section": "typography"
+      },
+      {
+        "name": "The Three Voices Rule",
+        "body": "Display caps announce, Andika informs, Patrick Hand annotates. Don't swap roles.",
+        "section": "typography"
+      },
+      {
+        "name": "The Painted Depth Rule",
+        "body": "Depth comes from the bottom band and the ground shadow, both in ink-brown alpha. Pressed = band only, shifted down 1-2px.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do outline every filled shape in ink (#4a2e1c) at 2.5px (2px for small parts, 1.25px for pointers).",
+      "Do use the hand-cut radii (rounded.hand, rounded.hand-sm) instead of uniform corner values.",
+      "Do name scene parts with a Patrick Hand callout and hairline pointer.",
+      "Do pair every team colour with its roof shape (brick/gable, sky-deep/flat, grass/dome).",
+      "Do show unavailable states with diagonal ink hatching.",
+      "Do read canvas colours and fonts from the CSS tokens (as `readPaint()` does) rather than hard-coding them.",
+      "Do keep motion on `--ease-out` and `--ease-squash` with the 120/220/420ms durations, which collapse to 0 under reduced motion."
+    ],
+    "donts": [
+      "Don't use dark backgrounds, neon, glows or gradient lighting; this is the note-highway the world refuses.",
+      "Don't introduce black or grey outlines or a second outline colour.",
+      "Don't set key legends in the display or label faces.",
+      "Don't stroke running text; text strokes are for moment words only.",
+      "Don't use bus yellow for anything that is not the current action or selection.",
+      "Don't use hard offset (neobrutalist) shadows; depth is the painted bottom band and soft ground shadow."
+    ]
+  }
+}

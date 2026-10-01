@@ -1,0 +1,15 @@
+{
+  "name": "keywar",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.7.0",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "dev": "pnpm --parallel --filter @keywar/server --filter @keywar/client dev",
+    "dev:client": "pnpm --filter @keywar/client dev",
+    "dev:server": "pnpm --filter @keywar/server dev",
+    "build": "pnpm -r build",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  }
+}

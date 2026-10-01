@@ -1,0 +1,24 @@
+# One stack per region (Dokploy "Compose" service). Set REGION per VPS.
+# The web client can live in one region only; game servers go in every region.
+services:
+  server:
+    build:
+      context: .
+      dockerfile: apps/server/Dockerfile
+    environment:
+      PORT: 2567
+      REGION: ${REGION:-local}
+    ports:
+      - "2567:2567"
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/client/Dockerfile
+      args:
+        # label=wss-url pairs, comma separated, e.g. sa-east=wss://sa.keywar.gg,us-east=wss://us.keywar.gg
+        VITE_REGIONS: ${VITE_REGIONS:-local=ws://localhost:2567}
+    ports:
+      - "8080:80"
+    restart: unless-stopped

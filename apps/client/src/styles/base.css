@@ -1,0 +1,87 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--grain), var(--surface);
+  color: var(--text);
+  font-family: var(--font-key);
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  caret-color: var(--brick);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 800;
+  line-height: 0.95;
+  margin: 0;
+  text-wrap: balance;
+  text-transform: uppercase;
+  letter-spacing: 0;
+}
+
+p {
+  margin: 0;
+  text-wrap: pretty;
+}
+
+button,
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--bus);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 3px dashed var(--focus);
+  outline-offset: 4px;
+}
+
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+::-webkit-scrollbar-track {
+  background: var(--paper-shade);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--sand);
+  border: 2px solid var(--ink);
+  border-radius: 8px;
+}
+html {
+  scrollbar-color: var(--sand) var(--paper-shade);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

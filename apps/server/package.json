@@ -1,0 +1,26 @@
+{
+  "name": "@keywar/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsup src/index.ts --format esm --target node22 --clean",
+    "start": "node dist/index.js",
+    "typecheck": "tsc -p ."
+  },
+  "dependencies": {
+    "@colyseus/core": "^0.18.18",
+    "@colyseus/schema": "^5.0.35",
+    "@colyseus/ws-transport": "^0.18.4",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@keywar/shared": "workspace:*",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "tsup": "^8.5.1",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

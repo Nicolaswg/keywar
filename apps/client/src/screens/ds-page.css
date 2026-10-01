@@ -1,0 +1,117 @@
+.dsp {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: var(--s-6) var(--s-4) var(--s-8);
+  display: grid;
+  gap: var(--s-7);
+}
+.dsp__head p {
+  font-size: var(--fs-lead);
+  max-width: 60ch;
+}
+.dsp__section {
+  display: grid;
+  gap: var(--s-4);
+}
+.dsp__section h2 {
+  font-size: var(--fs-h2);
+}
+.dsp__note {
+  font-family: var(--font-label);
+  font-size: var(--fs-lead);
+}
+.dsp__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-5);
+}
+.dsp__row--end {
+  align-items: flex-end;
+}
+.dsp__swatches {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--s-4);
+}
+.swatch {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  margin: 0;
+}
+.swatch > span {
+  flex: none;
+  width: 64px;
+  height: 48px;
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--paint-depth);
+}
+.swatch figcaption {
+  display: grid;
+}
+.swatch code {
+  font-size: 0.8125rem;
+  color: var(--ink-soft);
+  padding-left: 24px;
+}
+.dsp__type {
+  display: grid;
+  gap: var(--s-3);
+}
+.t-display {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 900;
+  font-size: var(--fs-h1);
+  line-height: 1;
+}
+.t-key {
+  font-family: var(--font-key);
+  font-weight: 700;
+  font-size: var(--fs-h3);
+}
+.t-label {
+  font-family: var(--font-label);
+  font-size: var(--fs-h3);
+}
+.dsp__crates {
+  display: flex;
+  gap: var(--s-3);
+  align-items: flex-end;
+}
+.crate {
+  display: grid;
+  place-items: center;
+  width: 50px;
+  height: 50px;
+  border: var(--line);
+  border-radius: 8px;
+  background: var(--bus);
+  box-shadow: var(--paint-depth);
+  font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 1;
+}
+.crate small {
+  font-family: var(--font-label);
+  font-weight: 400;
+  font-size: 0.8rem;
+}
+.crate--hold {
+  background: var(--sky);
+}
+.crate--shift,
+.crate--ctrl {
+  height: 61px;
+  color: var(--paper);
+  align-content: center;
+  gap: 2px;
+}
+.crate--shift {
+  background: var(--grass-deep);
+}
+.crate--ctrl {
+  background: var(--brick);
+}
