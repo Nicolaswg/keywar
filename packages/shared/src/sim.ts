@@ -27,7 +27,8 @@ import { damageFor, inkFor, judge } from "./judge.js";
 import type { MatchPhase, ServerMessages } from "./protocol.js";
 import {
   AMBULANCE_HEAL,
-  STREAK_REROLL_EVERY,
+  TOOL_ROTATE_EVERY,
+  tierForStreak,
   randomLoadout,
   rerollSkill,
   skillCost,
@@ -81,6 +82,8 @@ export interface SimPlayer {
   streak: number;
   bestStreak: number;
   ink: number;
+  /** Hits since the last tool rotation (0…TOOL_ROTATE_EVERY-1). */
+  toolHits: number;
   damageDealt: number;
   targetId: string;
   connected: boolean;
@@ -128,6 +131,8 @@ interface Book {
   wordPerfects: Map<number, number>;
   lastCast: Partial<Record<SkillId, number>>;
   eraserCharges: number;
+  /** How many tool rotations so far: picks which slot rotates next. */
+  rotations: number;
 }
 
 export class MatchSim {
@@ -194,6 +199,7 @@ export class MatchSim {
     p.streak = 0;
     p.bestStreak = 0;
     p.ink = 0;
+    p.toolHits = 0;
     p.damageDealt = 0;
     p.targetId = "";
     p.connected = true;
@@ -201,7 +207,7 @@ export class MatchSim {
     // Tools are dealt at random; the streak upgrades them during the match.
     for (const id of randomLoadout(this.random, this.teamMode)) p.loadout.push(id);
     this.state.players.set(sessionId, p);
-    this.books.set(sessionId, { judged: new Set(), cursor: 0, wordHits: new Map(), wordPerfects: new Map(), lastCast: {}, eraserCharges: 0 });
+    this.books.set(sessionId, { judged: new Set(), cursor: 0, wordHits: new Map(), wordPerfects: new Map(), lastCast: {}, eraserCharges: 0, rotations: 0 });
     return p;
   }
 
@@ -338,7 +344,11 @@ export class MatchSim {
     const before = p.streak;
     p.streak++;
     p.bestStreak = Math.max(p.bestStreak, p.streak);
-    if (p.streak % STREAK_REROLL_EVERY === 0) this.upgradeSkill(p, p.streak / STREAK_REROLL_EVERY);
+    p.toolHits++;
+    if (p.toolHits >= TOOL_ROTATE_EVERY) {
+      p.toolHits = 0;
+      this.rotateSkill(p, book);
+    }
     p.ink = Math.min(100, p.ink + inkFor(judgement, before, p.streak));
 
     let damage = damageFor({
@@ -478,12 +488,12 @@ export class MatchSim {
     this.hurt(p, amount, p.sessionId);
   }
 
-  /** Streak milestone: one tool (alternating slots) is swapped for a stronger random one. */
-  private upgradeSkill(p: SimPlayer, milestone: number) {
-    const slot = ((milestone - 1) % 2) as 0 | 1;
+  /** Every TOOL_ROTATE_EVERY hits: one tool (alternating slots) rotates; the streak decides how strong the new one is. */
+  private rotateSkill(p: SimPlayer, book: Book) {
+    const slot = (book.rotations++ % 2) as 0 | 1;
     const from = p.loadout[slot] as SkillId;
     const other = p.loadout[slot === 0 ? 1 : 0] as SkillId;
-    const to = rerollSkill(slot, from, other, milestone, this.random, this.teamMode);
+    const to = rerollSkill(slot, from, other, tierForStreak(p.streak), this.random, this.teamMode);
     if (to === from) return;
     p.loadout[slot] = to;
     this.host.send(p.sessionId, "skillUpgrade", { slot, from, to });

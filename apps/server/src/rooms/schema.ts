@@ -21,6 +21,7 @@ export const Player = schema(
     streak: t.uint16(),
     bestStreak: t.uint16(),
     ink: t.uint8(),
+    toolHits: t.uint8(),
     damageDealt: t.uint32(),
     targetId: t.string(),
     connected: t.boolean(),

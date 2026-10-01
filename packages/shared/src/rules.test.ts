@@ -52,10 +52,35 @@ describe("difficulty", () => {
 describe("tool levels", () => {
   it("cost less and last longer as the streak grows", async () => {
     const { skillCost, skillDuration, skillLevel } = await import("./skills.js");
-    expect([skillLevel(0), skillLevel(15), skillLevel(30)]).toEqual([1, 2, 3]);
+    expect([skillLevel(0), skillLevel(10), skillLevel(20)]).toEqual([1, 2, 3]);
     expect(skillCost("mixer", 0)).toBe(40);
-    expect(skillCost("mixer", 30)).toBe(24);
-    expect(skillDuration("mixer", 15)).toBe(6000);
+    expect(skillCost("mixer", 20)).toBe(24);
+    expect(skillDuration("mixer", 10)).toBe(6000);
+  });
+});
+
+describe("chord spacing", () => {
+  it("keeps Shift/Ctrl notes apart and leaves room around each one", async () => {
+    const { CHORD_SPACING } = await import("./chart.js");
+    for (const difficulty of ["easy", "normal", "expert"] as const) {
+      for (const seed of [1, 2, 3, 4, 5]) {
+        const chart = generateChart(seed, "es", difficulty);
+        let lastChord = -Infinity;
+        chart.forEach((n, i) => {
+          if (!n.key.shift && !n.key.ctrl) return;
+          expect(n.t - lastChord).toBeGreaterThanOrEqual(CHORD_SPACING.betweenMs);
+          lastChord = n.t;
+          const prev = chart[i - 1];
+          const next = chart[i + 1];
+          if (prev) expect(n.t - prev.t).toBeGreaterThanOrEqual(CHORD_SPACING.clearMs);
+          if (next) expect(next.t - n.t).toBeGreaterThanOrEqual(CHORD_SPACING.clearMs);
+        });
+      }
+    }
+  });
+
+  it("still has chords on expert", () => {
+    expect(generateChart(1, "en", "expert").some((n) => n.key.shift || n.key.ctrl)).toBe(true);
   });
 });
 

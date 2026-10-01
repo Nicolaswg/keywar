@@ -224,15 +224,25 @@ describe("tools", () => {
     });
   });
 
-  it("swaps a tool for a stronger one every 15 in a row", () => {
+  it("rotates a tool every 10 hits, alternating slots, tier by streak", () => {
     const { sim, state, sent, advanceTo } = setup("duel");
     const p0 = state.players.get("p0")!;
-    const start = p0.loadout[0];
-    advanceTo(sim.chart[0]!.t);
-    p0.streak = 14;
-    sim.hit("p0", sim.chart[0]!.id, 0); // streak 15 → milestone 1, slot 0
+    const [a0, a1] = [p0.loadout[0], p0.loadout[1]];
+    const play = (k: number) => {
+      const n = sim.chart[k]!;
+      advanceTo(n.t);
+      sim.hit("p0", n.id, 0);
+    };
+    for (let k = 0; k < 9; k++) play(k);
+    expect(p0.toolHits).toBe(9);
+    expect([p0.loadout[0], p0.loadout[1]]).toEqual([a0, a1]);
+    play(9); // 10th hit, streak 10 → tier 2 attack
+    expect(p0.toolHits).toBe(0);
     expect(["mixer", "crane", "blackout"]).toContain(p0.loadout[0]);
-    expect(p0.loadout[0]).not.toBe(start);
-    expect(sent.find((m) => m.type === "skillUpgrade")?.msg).toMatchObject({ slot: 0, from: start });
+    expect(p0.loadout[1]).toBe(a1);
+    for (let k = 10; k < 20; k++) play(k); // 20th hit, streak 20 → support slot rotates
+    expect(p0.loadout[1]).not.toBe(a1);
+    expect(sent.filter((m) => m.type === "skillUpgrade")).toHaveLength(2);
   });
+
 });

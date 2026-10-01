@@ -85,6 +85,7 @@ export class OnlineSession implements GameSession {
         streak: p.streak,
         bestStreak: p.bestStreak,
         ink: p.ink,
+        toolHits: p.toolHits,
         damageDealt: p.damageDealt,
         targetId: p.targetId,
         connected: p.connected,

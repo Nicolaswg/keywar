@@ -46,6 +46,8 @@ Cada nota es una **tecla física** (`KeyboardEvent.code`) más modificadores. Ca
 
 El color nunca va solo: Shift/Ctrl llevan rótulo, las palabras llevan cuerda y etiqueta.
 
+**Espacio para los atajos:** mover el meñique a Shift o Ctrl lleva tiempo, así que entre dos teclas con modificador hay **al menos 2 s**, y cada una tiene **0,45 s libres antes y después**. Si no caben, la nota sale como la misma tecla sin modificador.
+
 **Niveles de dificultad** (se desbloquean con el tempo):
 1. Fila central (`asdf jkl gh`)
 2. Todas las letras
@@ -119,8 +121,9 @@ La **tinta** (el depósito de agua del tejado, 0–100) se gana tecleando limpio
 
 **Las herramientas no se eligen: te tocan al azar.** Al empezar recibes una de **ataque** (`Espacio`) y una de **apoyo** (`Enter`), de rango 1. Tu racha las hace crecer:
 
-- **Nivel** (los 3 ladrillos junto a la tecla): nivel 2 desde 15 seguidas, nivel 3 desde 30. Cada nivel dura más (x1,5 · x2) y cuesta menos tinta (−20 % · −40 %). Si rompes la racha, vuelven a nivel 1.
-- **Cambio:** cada 15 seguidas (15, 30, 45…) una de las dos —alternando— se cambia por otra al azar de un **rango superior**, con un cartel «¡nueva!».
+- **Rotación:** cada **10 aciertos** (no hace falta que sean seguidos) una de las dos —alternando ataque y apoyo— se cambia por otra al azar, con un cartel «¡nueva!». El medidor «próximo cambio» (10 casillas bajo la racha) se llena con cada acierto.
+- **La racha decide el rango de la nueva:** menos de 10 seguidas → rango 1; desde 10 → rango 2; desde 20 → rango 3.
+- **Nivel** (los 3 ladrillos junto a la tecla): nivel 2 desde 10 seguidas, nivel 3 desde 20. Cada nivel dura más (x1,5 · x2) y cuesta menos tinta (−20 % · −40 %). Si rompes la racha, vuelven a nivel 1.
 
 | Rango | Ataque (Espacio) | Apoyo (Enter) |
 |---|---|---|

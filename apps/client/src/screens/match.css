@@ -161,7 +161,7 @@
 .mine__lane {
   position: relative;
   /* whatever the viewport leaves after bar, roof, keyboard and street */
-  height: clamp(220px, calc(100vh - 100cqw / 14.5 * 3.2 - 330px), 600px);
+  height: clamp(220px, calc(100vh - 100cqw / 14.5 * 3.2 - 365px), 600px);
 }
 .mine__canvas {
   position: absolute;
@@ -746,4 +746,32 @@
 .mine__hp .floats {
   left: 55%;
   right: 0;
+}
+
+/* "Next tool" meter under the streak: one pip per hit, a tool rotates when full. */
+.rotate {
+  display: grid;
+  justify-items: center;
+  gap: 2px;
+  margin-top: var(--s-1);
+}
+.rotate__pips {
+  display: flex;
+  gap: 2px;
+}
+.rotate__pips span {
+  width: 9px;
+  height: 9px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+  background: var(--paper);
+  transition: background-color var(--t-fast) var(--ease-out);
+}
+.rotate__pips span[data-on] {
+  background: var(--grass);
+}
+.rotate__label {
+  font-family: var(--font-label);
+  font-size: 0.875rem;
+  line-height: 1;
 }

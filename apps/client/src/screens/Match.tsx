@@ -6,6 +6,7 @@ import {
   LAYOUT_FOR_LANG,
   MATCH,
   SKILLS,
+  TOOL_ROTATE_EVERY,
   legendFor,
   skillCost,
   skillLevel,
@@ -292,6 +293,15 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
               <span className="streak__n tabular">{me.streak}</span>
               <span className="streak__label">
                 {t("streak")} · <strong>x{mult}</strong>
+              </span>
+              {/* Fills with every hit; when full, one tool rotates. */}
+              <span className="rotate" role="meter" aria-valuemin={0} aria-valuemax={TOOL_ROTATE_EVERY} aria-valuenow={me.toolHits} aria-label={t("nextTool")}>
+                <span className="rotate__pips">
+                  {Array.from({ length: TOOL_ROTATE_EVERY }, (_, k) => (
+                    <span key={k} data-on={k < me.toolHits || undefined} />
+                  ))}
+                </span>
+                <span className="rotate__label">{t("nextTool")}</span>
               </span>
             </div>
             <SkillSign slot={1} id={me.loadout[1]!} me={me} session={session} t={t} lang={snap.lang} upgraded={upgrade?.slot === 1 ? upgrade.id : undefined} />

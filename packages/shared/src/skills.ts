@@ -93,8 +93,8 @@ export const DEFAULT_LOADOUT: [SkillId, SkillId] = ["quake", "helmet"];
 /**
  * Nobody picks tools: everyone starts with one random attack (slot 0, Space)
  * and one random support tool (slot 1, Enter) from tier 1. Every
- * STREAK_REROLL_EVERY notes in a row, one slot (alternating) is swapped for
- * a random tool of a higher tier.
+ * TOOL_ROTATE_EVERY hits (a streak is not required) one slot, alternating,
+ * rotates to another random tool; the current streak decides its tier.
  */
 export const SKILL_TIERS: { attack: SkillId[][]; support: SkillId[][]; teamSupport: SkillId[][] } = {
   attack: [["quake", "mirror"], ["mixer", "crane", "blackout"], ["caps"]],
@@ -102,10 +102,16 @@ export const SKILL_TIERS: { attack: SkillId[][]; support: SkillId[][]; teamSuppo
   teamSupport: [["helmet", "eraser"], ["overtime"], ["ambulance"]],
 };
 
-export const STREAK_REROLL_EVERY = 15;
+/** Hits (not necessarily in a row) between tool rotations. */
+export const TOOL_ROTATE_EVERY = 10;
 
-/** Tool level from the current streak: 1 → 2 at 15 → 3 at 30. Breaking the streak drops it back. */
-export const SKILL_LEVEL_STREAKS = [0, 15, 30] as const;
+/** Streak needed for each tool tier when rotating: tier 2 from 10, tier 3 from 20. */
+export function tierForStreak(streak: number) {
+  return streak >= 20 ? 2 : streak >= 10 ? 1 : 0;
+}
+
+/** Tool level from the current streak: 1 → 2 at 10 → 3 at 20. Breaking the streak drops it back. */
+export const SKILL_LEVEL_STREAKS = [0, 10, 20] as const;
 /** Per level: effect duration multiplier and ink cost multiplier. */
 export const SKILL_LEVELS = [
   { duration: 1, cost: 1 },
@@ -133,13 +139,13 @@ export function randomLoadout(random: () => number, teamMode: boolean): [SkillId
 }
 
 /**
- * The tool that replaces `current` in `slot` at the n-th streak milestone
- * (1 = streak 15, 2 = streak 30…): a random one from the next tiers up,
- * never the same tool, never a duplicate of the other slot.
+ * The tool that replaces `current` in `slot`: a random one from tier `tier`
+ * (0-based, see tierForStreak), never the same tool, never a duplicate of
+ * the other slot; falls back to lower tiers when that one has nothing new.
  */
-export function rerollSkill(slot: 0 | 1, current: SkillId, other: SkillId, milestone: number, random: () => number, teamMode: boolean): SkillId {
+export function rerollSkill(slot: 0 | 1, current: SkillId, other: SkillId, tier: number, random: () => number, teamMode: boolean): SkillId {
   const tiers = slot === 0 ? SKILL_TIERS.attack : teamMode ? SKILL_TIERS.teamSupport : SKILL_TIERS.support;
-  const top = Math.min(tiers.length - 1, milestone);
+  const top = Math.min(tiers.length - 1, tier);
   // Prefer the highest unlocked tier; fall back downwards if it has nothing new.
   for (let tier = top; tier >= 0; tier--) {
     const options = tiers[tier]!.filter((id) => id !== current && id !== other);

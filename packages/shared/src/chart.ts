@@ -23,6 +23,17 @@ export interface Note {
 export const LEAD_IN_MS = 2_000;
 
 /**
+ * Shift/Ctrl chords need the pinky to travel: never two of them close
+ * together, and always some clear time before and after each one.
+ */
+export const CHORD_SPACING = {
+  /** Minimum time between two chord notes. */
+  betweenMs: 2_000,
+  /** Minimum free time before and after a chord note. */
+  clearMs: 450,
+} as const;
+
+/**
  * Builds the whole match chart from a seed. The server picks the seed and
  * shares it; every client regenerates the identical chart locally, so the
  * chart itself never travels over the network.
@@ -43,13 +54,20 @@ export function generateChart(seed: number, lang: Lang, difficulty: Difficulty =
 
   // Notes only ever land on the same grid the music plays, so they never drift from the beat.
   const slots = beatGrid(difficulty, durationMs - 1_000).filter((g) => g.beat || phaseAt(g.t, difficulty).subdivision === 2);
-  const push = (n: Omit<Note, "id">) => notes.push({ id: id++, ...n });
+  let lastT = -Infinity;
+  let lastChordT = -Infinity;
+  /** After a chord, nothing may land before this time. */
+  let freeFrom = -Infinity;
+  const push = (n: Omit<Note, "id">) => {
+    notes.push({ id: id++, ...n });
+    lastT = n.t;
+  };
 
   let i = 0;
   while (i < slots.length) {
     const t = slots[i]!.t;
     const phase = phaseAt(t, difficulty);
-    if (!rng.chance(phase.density)) {
+    if (t < freeFrom || !rng.chance(phase.density)) {
       i++;
       continue;
     }
@@ -72,7 +90,17 @@ export function generateChart(seed: number, lang: Lang, difficulty: Difficulty =
       continue;
     }
 
-    push({ t, key: keyForTier(tier, rng, { tier1, tier2, tier3, tier4 }), kind: "tap", tier });
+    let key = keyForTier(tier, rng, { tier1, tier2, tier3, tier4 });
+    if (key.shift || key.ctrl) {
+      const roomy = t - lastT >= CHORD_SPACING.clearMs && t - lastChordT >= CHORD_SPACING.betweenMs;
+      if (roomy) {
+        lastChordT = t;
+        freeFrom = t + CHORD_SPACING.clearMs;
+      } else {
+        key = plain(key.code); // too crowded for a chord: same key, no modifier
+      }
+    }
+    push({ t, key, kind: "tap", tier });
     i++;
   }
 

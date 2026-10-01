@@ -35,6 +35,8 @@ export interface PlayerView {
   streak: number;
   bestStreak: number;
   ink: number;
+  /** Hits since the last tool rotation. */
+  toolHits: number;
   damageDealt: number;
   targetId: string;
   connected: boolean;
@@ -75,7 +77,7 @@ export interface ServerMessages {
   damage: { from: string; to: string; amount: number };
   /** You hurt yourself: a note you let pass, or a key with no crate. Only to that player. */
   selfDamage: { amount: number; reason: "miss" | "wrong" };
-  /** Your streak swapped one of your tools for a stronger one. Only to that player. */
+  /** One of your tools rotated (every few hits; your streak picks its tier). Only to that player. */
   skillUpgrade: { slot: 0 | 1; from: SkillId; to: SkillId };
   /** You finished a falling word and won the heal roll. Only sent to the healed player. */
   heal: { amount: number; word: string; perfect: boolean };
