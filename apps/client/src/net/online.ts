@@ -1,8 +1,8 @@
 import { Client, type Room } from "@colyseus/sdk";
-import { ROOM_NAME, SKILLS, type JoinOptions, type ModeId, type PlayerView, type ServerMessages, type SkillId } from "@keywar/shared";
+import { ROOM_NAME, SKILLS, type EntrantView, type JoinOptions, type ModeId, type PlayerView, type RoyaleJoinOptions, type ServerMessages, type SkillId } from "@keywar/shared";
 import { Emitter, nowMs, type GameSession, type Snapshot } from "./session";
 
-const MESSAGE_TYPES: (keyof ServerMessages)[] = ["judged", "skillCast", "damage"];
+const MESSAGE_TYPES: (keyof ServerMessages)[] = ["judged", "skillCast", "damage", "knockout", "heal", "selfDamage", "skillUpgrade"];
 
 /** Live match against a regional Colyseus server. */
 export class OnlineSession implements GameSession {
@@ -14,6 +14,8 @@ export class OnlineSession implements GameSession {
   private bestRtt = Infinity;
   private startsAt = 0;
   private lastCast: Partial<Record<SkillId, number>> = {};
+  /** Set when the server closed the connection (kicked, event cancelled, room gone). */
+  closedCode: number | null = null;
 
   private constructor(
     private room: Room,
@@ -24,6 +26,12 @@ export class OnlineSession implements GameSession {
   ) {
     this.snap = { mode, lang, difficulty, phase: "waiting", seed: 0, winnerTeam: -1, players: [] };
     room.onStateChange(() => this.refresh());
+    room.onLeave((code: number) => {
+      this.closedCode = code;
+      // New snapshot object so React re-renders and notices the closed connection.
+      this.snap = { ...this.snap };
+      this.events.changed();
+    });
     for (const type of MESSAGE_TYPES) room.onMessage(type, (msg: never) => this.events.emit(type, msg));
     room.onMessage("skillCast", (msg: ServerMessages["skillCast"]) => {
       if (msg.from === this.meId) this.lastCast[msg.skill] = this.matchNow();
@@ -42,6 +50,16 @@ export class OnlineSession implements GameSession {
     const client = new Client(url);
     const room = await client.joinOrCreate(ROOM_NAME[mode], opts);
     return new OnlineSession(room, room.sessionId, mode, opts.lang, opts.difficulty);
+  }
+
+  /** Twitch chat battle: one room per channel, joined with a Twitch session token (or as an overlay). */
+  static async joinRoyale(url: string, channel: string, opts: RoyaleJoinOptions) {
+    const room = await new Client(url).join(ROOM_NAME.royale, { channel, ...opts });
+    return new OnlineSession(room, room.sessionId, "royale", "es", "normal");
+  }
+
+  sendLoadout(loadout: [SkillId, SkillId]) {
+    this.room.send("loadout", { loadout });
   }
 
   /** NTP-style: a burst of pings, keep the sample with the lowest round trip. */
@@ -84,6 +102,23 @@ export class OnlineSession implements GameSession {
       seed: s.seed,
       winnerTeam: s.winnerTeam,
       players: players.sort((a, b) => a.seat - b.seat),
+      royale: s.channel
+        ? {
+            channel: s.channel,
+            channelName: s.channelName,
+            stage: s.stage,
+            command: s.command,
+            maxPlayers: s.maxPlayers,
+            remaining: s.remaining,
+            entrants: [...(s.entrants ?? [])].map((e: EntrantView) => ({
+              login: e.login,
+              displayName: e.displayName,
+              order: e.order,
+              connected: e.connected,
+              seated: e.seated,
+            })),
+          }
+        : undefined,
     };
     this.events.changed();
   }

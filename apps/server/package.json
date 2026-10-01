@@ -7,20 +7,24 @@
     "dev": "tsx watch src/index.ts",
     "build": "tsup src/index.ts --format esm --target node22 --clean",
     "start": "node dist/index.js",
-    "typecheck": "tsc -p ."
+    "typecheck": "tsc -p .",
+    "loadtest": "tsx scripts/loadtest.ts"
   },
   "dependencies": {
     "@colyseus/core": "^0.18.18",
     "@colyseus/schema": "^5.0.35",
     "@colyseus/ws-transport": "^0.18.4",
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "ws": "^8.22.0"
   },
   "devDependencies": {
     "@keywar/shared": "workspace:*",
     "@types/express": "^5.0.3",
     "@types/node": "^24.0.0",
+    "@types/ws": "^8.18.2",
     "tsup": "^8.5.1",
     "tsx": "^4.23.15",
-    "typescript": "^7.0.2"
+    "typescript": "^7.0.2",
+    "@colyseus/sdk": "^0.18.4"
   }
 }

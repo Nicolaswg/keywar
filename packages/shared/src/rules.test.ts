@@ -49,6 +49,16 @@ describe("difficulty", () => {
   });
 });
 
+describe("tool levels", () => {
+  it("cost less and last longer as the streak grows", async () => {
+    const { skillCost, skillDuration, skillLevel } = await import("./skills.js");
+    expect([skillLevel(0), skillLevel(15), skillLevel(30)]).toEqual([1, 2, 3]);
+    expect(skillCost("mixer", 0)).toBe(40);
+    expect(skillCost("mixer", 30)).toBe(24);
+    expect(skillDuration("mixer", 15)).toBe(6000);
+  });
+});
+
 describe("judge", () => {
   it("maps offsets to windows", () => {
     expect(judge(0)).toBe("perfect");
@@ -60,9 +70,12 @@ describe("judge", () => {
   it("scales damage with streak and chords", () => {
     const tap = { key: { code: "KeyA", shift: false, ctrl: false }, kind: "tap" as const };
     const chord = { key: { code: "KeyA", shift: true, ctrl: false }, kind: "tap" as const };
-    expect(multiplierFor(30)).toBe(3);
+    expect(multiplierFor(4)).toBe(1);
+    expect(multiplierFor(5)).toBe(2);
+    expect(multiplierFor(20)).toBe(3);
+    expect(multiplierFor(30)).toBe(4);
     expect(damageFor({ judgement: "perfect", note: tap, streak: 0, phaseScale: 1 })).toBe(6);
-    expect(damageFor({ judgement: "perfect", note: chord, streak: 10, phaseScale: 1 })).toBe(18);
+    expect(damageFor({ judgement: "perfect", note: chord, streak: 5, phaseScale: 1 })).toBe(18);
     expect(damageFor({ judgement: "miss", note: tap, streak: 50, phaseScale: 2 })).toBe(0);
   });
 });

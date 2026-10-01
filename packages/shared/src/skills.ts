@@ -86,7 +86,68 @@ export const SKILLS: Record<SkillId, SkillDef> = {
 };
 
 export const SKILL_IDS = Object.keys(SKILLS) as SkillId[];
-export const DEFAULT_LOADOUT: [SkillId, SkillId] = ["mixer", "helmet"];
+export const DEFAULT_LOADOUT: [SkillId, SkillId] = ["quake", "helmet"];
+
+/* ---------------- random tools that grow with your streak ---------------- */
+
+/**
+ * Nobody picks tools: everyone starts with one random attack (slot 0, Space)
+ * and one random support tool (slot 1, Enter) from tier 1. Every
+ * STREAK_REROLL_EVERY notes in a row, one slot (alternating) is swapped for
+ * a random tool of a higher tier.
+ */
+export const SKILL_TIERS: { attack: SkillId[][]; support: SkillId[][]; teamSupport: SkillId[][] } = {
+  attack: [["quake", "mirror"], ["mixer", "crane", "blackout"], ["caps"]],
+  support: [["helmet", "eraser"], ["overtime"], ["overtime"]],
+  teamSupport: [["helmet", "eraser"], ["overtime"], ["ambulance"]],
+};
+
+export const STREAK_REROLL_EVERY = 15;
+
+/** Tool level from the current streak: 1 → 2 at 15 → 3 at 30. Breaking the streak drops it back. */
+export const SKILL_LEVEL_STREAKS = [0, 15, 30] as const;
+/** Per level: effect duration multiplier and ink cost multiplier. */
+export const SKILL_LEVELS = [
+  { duration: 1, cost: 1 },
+  { duration: 1.5, cost: 0.8 },
+  { duration: 2, cost: 0.6 },
+] as const;
+
+export function skillLevel(streak: number): 1 | 2 | 3 {
+  return streak >= SKILL_LEVEL_STREAKS[2] ? 3 : streak >= SKILL_LEVEL_STREAKS[1] ? 2 : 1;
+}
+
+export function skillCost(id: SkillId, streak: number) {
+  return Math.round(SKILLS[id].cost * SKILL_LEVELS[skillLevel(streak) - 1]!.cost);
+}
+
+export function skillDuration(id: SkillId, streak: number) {
+  return Math.round(SKILLS[id].durationMs * SKILL_LEVELS[skillLevel(streak) - 1]!.duration);
+}
+
+const pick = <T>(items: readonly T[], random: () => number) => items[Math.floor(random() * items.length)]!;
+
+export function randomLoadout(random: () => number, teamMode: boolean): [SkillId, SkillId] {
+  const support = teamMode ? SKILL_TIERS.teamSupport : SKILL_TIERS.support;
+  return [pick(SKILL_TIERS.attack[0]!, random), pick(support[0]!, random)];
+}
+
+/**
+ * The tool that replaces `current` in `slot` at the n-th streak milestone
+ * (1 = streak 15, 2 = streak 30…): a random one from the next tiers up,
+ * never the same tool, never a duplicate of the other slot.
+ */
+export function rerollSkill(slot: 0 | 1, current: SkillId, other: SkillId, milestone: number, random: () => number, teamMode: boolean): SkillId {
+  const tiers = slot === 0 ? SKILL_TIERS.attack : teamMode ? SKILL_TIERS.teamSupport : SKILL_TIERS.support;
+  const top = Math.min(tiers.length - 1, milestone);
+  // Prefer the highest unlocked tier; fall back downwards if it has nothing new.
+  for (let tier = top; tier >= 0; tier--) {
+    const options = tiers[tier]!.filter((id) => id !== current && id !== other);
+    if (options.length) return pick(options, random);
+  }
+  return current;
+}
+
 export const AMBULANCE_HEAL = 120;
 export const ERASER_CHARGES = 3;
 export const OVERTIME_MULT = 2;

@@ -439,6 +439,7 @@
 }
 
 .mine__hp {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -575,4 +576,174 @@
     animation: none;
     opacity: 1;
   }
+}
+
+/* Word heal: a green "+40 HP" sign pops up from the brick wall and floats away. */
+.heal {
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  translate: -50% 0;
+  display: grid;
+  justify-items: center;
+  padding: var(--s-1) var(--s-3);
+  border: var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--grass);
+  color: var(--paper);
+  box-shadow: var(--paint-depth);
+  pointer-events: none;
+  animation: heal-rise 1.8s var(--ease-out) forwards;
+}
+.heal strong {
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-size: var(--fs-h3);
+  line-height: 1;
+}
+.heal__word {
+  font-family: var(--font-label);
+  font-size: var(--fs-label);
+}
+@keyframes heal-rise {
+  0% {
+    opacity: 0;
+    scale: 0.6;
+  }
+  15% {
+    opacity: 1;
+    scale: 1.08;
+  }
+  25% {
+    scale: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: -50% -40px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .heal {
+    animation-name: none;
+  }
+}
+
+/* ---------- floating damage numbers ---------- */
+.rival__wall {
+  position: relative;
+}
+.floats {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+.float {
+  position: absolute;
+  left: calc(50% + var(--x));
+  /* Stagger stacked numbers so a burst stays readable. */
+  bottom: calc(60% + var(--i) * 22px);
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 800;
+  font-size: 1.75rem;
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--paper);
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  animation: float-up 1.1s var(--ease-out) forwards;
+}
+.float small {
+  font-family: var(--font-label);
+  font-size: 0.55em;
+  -webkit-text-stroke: 0;
+  color: var(--ink);
+}
+/* You hit them: brick red over their wall. You got hit / missed: on yours. */
+.float[data-kind="dealt"] {
+  color: var(--brick);
+}
+.float[data-kind="taken"],
+.float[data-kind="miss"],
+.float[data-kind="wrong"] {
+  color: var(--bus);
+  font-size: 1.5rem;
+}
+@keyframes float-up {
+  0% {
+    opacity: 0;
+    translate: -50% 10px;
+    scale: 0.7;
+  }
+  15% {
+    opacity: 1;
+    scale: 1.1;
+  }
+  100% {
+    opacity: 0;
+    translate: -50% -56px;
+    scale: 1;
+  }
+}
+
+/* ---------- tool level + "new tool" ---------- */
+.skill {
+  position: relative;
+}
+.skill__top {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+}
+.skill__level {
+  display: flex;
+  gap: 2px;
+}
+.skill__level span {
+  width: 12px;
+  height: 7px;
+  border: 1.5px solid var(--ink);
+  border-radius: 2px;
+}
+.skill__level span[data-on] {
+  background: var(--brick);
+}
+.skill[data-new] {
+  animation: sign-swing 600ms var(--ease-squash);
+}
+.skill__new {
+  position: absolute;
+  top: -14px;
+  right: 8px;
+  padding: 0 var(--s-2);
+  border: 2px solid var(--ink);
+  border-radius: var(--radius-sm);
+  background: var(--grass);
+  color: var(--paper);
+  font-family: var(--font-display);
+  font-variation-settings: var(--display-axes);
+  font-weight: 800;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .float {
+    animation-duration: 1.1s;
+    animation-name: float-fade;
+  }
+  @keyframes float-fade {
+    to {
+      opacity: 0;
+    }
+  }
+}
+/* Your own losses float by the "HP" label, clear of the streak badge. */
+.mine__hp .floats {
+  left: 55%;
+  right: 0;
 }

@@ -4,8 +4,12 @@ import "./ds.css";
 
 type ButtonVariant = "go" | "plain" | "danger" | "ghost";
 
-export function Button({ variant = "plain", ...rest }: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant }) {
-  return <button type="button" className="btn" data-variant={variant} {...rest} />;
+export function Button({
+  variant = "plain",
+  className = "",
+  ...rest
+}: ButtonHTMLAttributes<HTMLButtonElement> & { variant?: ButtonVariant; "data-armed"?: boolean }) {
+  return <button type="button" className={`btn ${className}`} data-variant={variant} {...rest} />;
 }
 
 export function Field({ label, ...rest }: InputHTMLAttributes<HTMLInputElement> & { label: string }) {
@@ -47,15 +51,17 @@ export function Sign({
   posts = false,
   className = "",
   style,
+  role,
 }: {
   children: ReactNode;
   tone?: "paper" | "bus" | "grass" | "brick" | "sky";
   posts?: boolean;
   className?: string;
   style?: CSSProperties;
+  role?: string;
 }) {
   return (
-    <div className={`sign ${className}`} data-tone={tone} data-posts={posts || undefined} style={style}>
+    <div className={`sign ${className}`} data-tone={tone} data-posts={posts || undefined} style={style} role={role}>
       {children}
     </div>
   );

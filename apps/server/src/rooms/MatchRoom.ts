@@ -16,7 +16,8 @@ interface CreateOptions {
  */
 export class MatchRoom extends Room<{ state: MatchState }> {
   override state = new MatchState();
-  override maxMessagesPerSecond = 60;
+  /** Generous: a frantic masher should lose HP, not get disconnected. */
+  override maxMessagesPerSecond = 120;
 
   private sim!: MatchSim;
   private fillTimer?: ReturnType<typeof setTimeout>;
@@ -31,6 +32,8 @@ export class MatchRoom extends Room<{ state: MatchState }> {
       createEffect: () => new Effect(),
       send: (sessionId, type, msg) => this.clients.getById(sessionId)?.send(type, msg),
       broadcast: (type, msg) => this.broadcast(type, msg),
+      // 3–6 players: everyone sees every hit.
+      notify: (_ids, type, msg) => this.broadcast(type, msg),
       onEnded: () => this.clock.setTimeout(() => this.disconnect(), MATCH.resultsMs),
     }, { mode: options.mode, lang, difficulty, seed: Math.floor(Math.random() * 2 ** 32) });
 

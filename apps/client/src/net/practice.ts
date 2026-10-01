@@ -41,6 +41,7 @@ export class PracticeSession implements GameSession {
       createEffect: () => ({ skill: "", from: "", until: 0 }),
       send: (to, type, msg) => to === this.meId && this.events.emit(type, msg),
       broadcast: (type, msg) => this.events.emit(type, msg),
+      notify: (_ids, type, msg) => this.events.emit(type, msg),
     }, { mode, lang: me.lang, difficulty: me.difficulty, seed: Math.floor(Math.random() * 2 ** 32) });
 
     this.sim.join(this.meId, me);

@@ -7,6 +7,19 @@ import { loadProfile, saveProfile, type Profile } from "./profile";
 import { DesignSystem } from "./screens/DesignSystem";
 import { Home } from "./screens/Home";
 import { MatchFlow } from "./screens/MatchFlow";
+import { ChannelJoin } from "./screens/twitch/ChannelJoin";
+import { Overlay } from "./screens/twitch/Overlay";
+import { StreamPanel } from "./screens/twitch/StreamPanel";
+
+/** Tiny path router: the game has four entry points and no nested navigation. */
+function route(): { name: "home" } | { name: "channel" | "overlay"; channel: string } | { name: "stream" } {
+  const parts = location.pathname.split("/").filter(Boolean);
+  const channel = (parts[1] ?? "").toLowerCase().replace(/[^a-z0-9_]/g, "");
+  if (parts[0] === "c" && channel) return { name: "channel", channel };
+  if (parts[0] === "overlay" && channel) return { name: "overlay", channel };
+  if (parts[0] === "stream") return { name: "stream" };
+  return { name: "home" };
+}
 
 export function App() {
   const [profile, setProfileState] = useState<Profile>(loadProfile);
@@ -20,6 +33,10 @@ export function App() {
   }, []);
 
   if (new URLSearchParams(location.search).has("ds")) return <DesignSystem />;
+  const r = route();
+  if (r.name === "overlay") return <Overlay channel={r.channel} />;
+  if (r.name === "stream") return <StreamPanel profile={profile} onProfile={setProfile} />;
+  if (r.name === "channel") return <ChannelJoin channel={r.channel} profile={profile} onProfile={setProfile} />;
 
   const joinOpts = () => ({ name: profile.name, lang: profile.lang, difficulty: profile.difficulty, loadout: profile.loadout });
 

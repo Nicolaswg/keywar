@@ -62,7 +62,13 @@ importers:
       express:
         specifier: ^5.1.0
         version: 5.2.1
+      ws:
+        specifier: ^8.22.0
+        version: 8.22.0
     devDependencies:
+      '@colyseus/sdk':
+        specifier: ^0.18.4
+        version: 0.18.4(@colyseus/core@0.18.18)(typescript@7.0.2)
       '@keywar/shared':
         specifier: workspace:*
         version: link:../../packages/shared
@@ -72,6 +78,9 @@ importers:
       '@types/node':
         specifier: ^24.0.0
         version: 24.19.0
+      '@types/ws':
+        specifier: ^8.18.2
+        version: 8.18.2
       tsup:
         specifier: ^8.5.1
         version: 8.5.1(postcss@8.5.28)(tsx@4.23.15)(typescript@7.0.2)

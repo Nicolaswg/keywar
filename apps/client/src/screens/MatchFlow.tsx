@@ -47,7 +47,7 @@ function Queue({ snap, meId, t, onCancel }: { snap: Snapshot; meId: string; t: T
         </p>
         <Building
           className="flow__building"
-          roof={team ? "flat" : "gable"}
+          roof={team ? "flat" : snap.mode === "duel" ? "dome" : "gable"}
           wall={teamWall(0)}
           floorHeight={46}
           floors={Array.from({ length: seats }, (_, i) => {
@@ -73,14 +73,23 @@ function Queue({ snap, meId, t, onCancel }: { snap: Snapshot; meId: string; t: T
 function Results({ snap, meId, t, onAgain, onHome }: { snap: Snapshot; meId: string; t: T; onAgain: () => void; onHome: () => void }) {
   const me = snap.players.find((p) => p.sessionId === meId);
   const won = me?.team === snap.winnerTeam;
-  const ranked = [...snap.players].sort((a, b) => b.hp - a.hp || b.damageDealt - a.damageDealt);
+  const ranked = [...snap.players].sort((a, b) => Number(b.alive) - Number(a.alive) || b.hp - a.hp || b.damageDealt - a.damageDealt);
   const maxDealt = Math.max(1, ...snap.players.map((p) => p.damageDealt));
+  // Big chat battles: show the top 10 and where you finished.
+  const big = ranked.length > 6;
+  const shown = big ? ranked.slice(0, 10) : ranked;
+  const myPlace = ranked.findIndex((p) => p.sessionId === meId) + 1;
 
   return (
     <main className="flow flow--results">
       <h2 className="results__headline">{won ? t("youWon") : t("youLost")}</h2>
-      <div className="results__street">
-        {ranked.map((p) => (
+      {big && myPlace > 0 && (
+        <Sign tone="bus" className="results__place tabular">
+          {t("twYourPlace", { n: myPlace })}
+        </Sign>
+      )}
+      <div className="results__street" data-big={big || undefined}>
+        {shown.map((p) => (
           <ResultHouse key={p.sessionId} p={p} me={p.sessionId === meId} winner={p.team === snap.winnerTeam} t={t} maxDealt={maxDealt} />
         ))}
       </div>

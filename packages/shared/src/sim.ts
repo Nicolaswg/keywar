@@ -5,12 +5,14 @@
  * mode runs it over plain objects with bots. Same rules, one implementation.
  */
 import { generateChart, type Note } from "./chart.js";
+import { createRng } from "./rng.js";
 import {
   DAMAGE,
   DIFFICULTIES,
   MATCH,
   MODES,
   WORD_BONUS,
+  WORD_HEAL,
   WRONG_KEY_SELF_DAMAGE,
   multiplierFor,
   judgeWindows,
@@ -25,12 +27,15 @@ import { damageFor, inkFor, judge } from "./judge.js";
 import type { MatchPhase, ServerMessages } from "./protocol.js";
 import {
   AMBULANCE_HEAL,
-  DEFAULT_LOADOUT,
+  STREAK_REROLL_EVERY,
+  randomLoadout,
+  rerollSkill,
+  skillCost,
+  skillDuration,
   ERASER_CHARGES,
   MAX_ACTIVE_SABOTAGES,
   OVERTIME_MULT,
   SKILLS,
-  isValidLoadout,
   type SkillId,
 } from "./skills.js";
 
@@ -101,15 +106,26 @@ export interface SimHost {
   createPlayer(): SimPlayer;
   createEffect(): SimEffect;
   send<K extends keyof ServerMessages>(sessionId: string, type: K, msg: ServerMessages[K]): void;
+  /** Rare match-wide news (knockouts): every client. */
   broadcast<K extends keyof ServerMessages>(type: K, msg: ServerMessages[K]): void;
+  /**
+   * Frequent events (damage, skill casts) concerning a few players. Small rooms
+   * may broadcast them; a 100-player room sends them only to these players
+   * and to spectators.
+   */
+  notify<K extends keyof ServerMessages>(sessionIds: string[], type: K, msg: ServerMessages[K]): void;
   /** Called once when the match ends. */
   onEnded?(): void;
+  /** Randomness for chance-based rules (word heals). Defaults to Math.random; tests pin it. */
+  random?(): number;
 }
 
 interface Book {
   judged: Set<number>;
   cursor: number;
   wordHits: Map<number, number>;
+  /** Per word: how many of its letters were judged "perfect". */
+  wordPerfects: Map<number, number>;
   lastCast: Partial<Record<SkillId, number>>;
   eraserCharges: number;
 }
@@ -148,6 +164,10 @@ export class MatchSim {
     }
   }
 
+  private get random() {
+    return this.host.random ?? Math.random;
+  }
+
   get teamMode() {
     return this.def.teams < this.def.players;
   }
@@ -178,9 +198,10 @@ export class MatchSim {
     p.targetId = "";
     p.connected = true;
     p.alive = true;
-    for (const id of isValidLoadout(opts.loadout, this.teamMode) ? opts.loadout : DEFAULT_LOADOUT) p.loadout.push(id);
+    // Tools are dealt at random; the streak upgrades them during the match.
+    for (const id of randomLoadout(this.random, this.teamMode)) p.loadout.push(id);
     this.state.players.set(sessionId, p);
-    this.books.set(sessionId, { judged: new Set(), cursor: 0, wordHits: new Map(), lastCast: {}, eraserCharges: 0 });
+    this.books.set(sessionId, { judged: new Set(), cursor: 0, wordHits: new Map(), wordPerfects: new Map(), lastCast: {}, eraserCharges: 0 });
     return p;
   }
 
@@ -197,10 +218,12 @@ export class MatchSim {
       return;
     }
     const p = this.state.players.get(sessionId);
-    if (p) {
+    if (p?.alive) {
       p.connected = false;
-      p.alive = false; // leaving mid-match forfeits
       p.hp = 0;
+      this.knockOut(p, ""); // leaving mid-match forfeits
+    } else if (p) {
+      p.connected = false;
     }
   }
 
@@ -209,12 +232,33 @@ export class MatchSim {
     this.state.phase = "countdown";
     this.state.startsAt = this.host.now() + MATCH.countdownMs;
     const teams = new Set<number>();
+    if (this.def.targeting === "ring") this.buildRing();
     this.state.players.forEach((p) => {
-      p.targetId = this.pickTarget(p);
+      if (this.def.targeting !== "ring") p.targetId = this.pickTarget(p);
       teams.add(p.team);
     });
     this.startingTeams = teams.size;
     return true;
+  }
+
+  /** Shuffle everyone into a chain (seeded, so it is reproducible) and point each at the next. */
+  private buildRing() {
+    const ids: string[] = [];
+    this.state.players.forEach((p) => ids.push(p.sessionId));
+    ids.sort();
+    const rng = createRng(this.state.seed ^ 0x5bd1e995);
+    for (let i = ids.length - 1; i > 0; i--) {
+      const j = rng.int(i + 1);
+      [ids[i], ids[j]] = [ids[j]!, ids[i]!];
+    }
+    ids.forEach((id, i) => (this.state.players.get(id)!.targetId = ids.length > 1 ? ids[(i + 1) % ids.length]! : ""));
+  }
+
+  /** Players still standing. */
+  remaining() {
+    let n = 0;
+    this.state.players.forEach((p) => p.alive && n++);
+    return n;
   }
 
   private teamFor(seat: number) {
@@ -237,7 +281,7 @@ export class MatchSim {
         if (n.t + this.windows.missAfter + MISS_SWEEP_GRACE_MS > now) break;
         if (!book.judged.has(n.id)) {
           book.judged.add(n.id);
-          this.breakStreak(p, book);
+          this.missed(p, book);
         }
         book.cursor++;
       }
@@ -286,7 +330,7 @@ export class MatchSim {
     const judgement = judge(offset, this.difficulty);
     book.judged.add(note.id);
     if (judgement === "miss") {
-      this.breakStreak(p, book);
+      this.missed(p, book);
       this.host.send(sessionId, "judged", { noteId: note.id, judgement, damage: 0, targetId: p.targetId });
       return;
     }
@@ -294,6 +338,7 @@ export class MatchSim {
     const before = p.streak;
     p.streak++;
     p.bestStreak = Math.max(p.bestStreak, p.streak);
+    if (p.streak % STREAK_REROLL_EVERY === 0) this.upgradeSkill(p, p.streak / STREAK_REROLL_EVERY);
     p.ink = Math.min(100, p.ink + inkFor(judgement, before, p.streak));
 
     let damage = damageFor({
@@ -305,12 +350,28 @@ export class MatchSim {
     });
     if (note.wordId !== undefined) {
       const hits = (book.wordHits.get(note.wordId) ?? 0) + 1;
+      const perfects = (book.wordPerfects.get(note.wordId) ?? 0) + (judgement === "perfect" ? 1 : 0);
       book.wordHits.set(note.wordId, hits);
-      if (hits === this.wordLength.get(note.wordId)) damage += WORD_BONUS * multiplierFor(p.streak);
+      book.wordPerfects.set(note.wordId, perfects);
+      const length = this.wordLength.get(note.wordId) ?? 0;
+      if (hits === length) {
+        damage += WORD_BONUS * multiplierFor(p.streak);
+        this.rollWordHeal(p, note.word ?? "", length, perfects === length);
+      }
     }
 
     const targetId = this.dealDamage(p, damage);
     this.host.send(sessionId, "judged", { noteId: note.id, judgement, damage, targetId });
+  }
+
+  /** A completed word may restore HP: more likely when every letter was perfect. */
+  private rollWordHeal(p: SimPlayer, word: string, length: number, perfect: boolean) {
+    const chance = perfect ? WORD_HEAL.perfectChance : WORD_HEAL.chance;
+    if ((this.host.random ?? Math.random)() >= chance) return;
+    const amount = Math.min(MATCH.maxHp - p.hp, WORD_HEAL.perLetter * length);
+    if (amount <= 0) return;
+    p.hp += amount;
+    this.host.send(p.sessionId, "heal", { amount, word, perfect });
   }
 
   holdEnd(sessionId: string, noteId: number, heldMs: number) {
@@ -321,17 +382,19 @@ export class MatchSim {
     if (Math.min(heldMs, need) >= need - this.windows.good) {
       this.dealDamage(ctx.p, Math.round(DAMAGE.good * multiplierFor(ctx.p.streak) * DIFFICULTIES[this.difficulty].damageMult));
     }
-    else this.breakStreak(ctx.p, ctx.book);
+    else this.missed(ctx.p, ctx.book);
   }
 
   wrong(sessionId: string) {
     const ctx = this.active(sessionId);
     if (!ctx) return;
-    this.hurt(ctx.p, WRONG_KEY_SELF_DAMAGE);
+    this.host.send(sessionId, "selfDamage", { amount: WRONG_KEY_SELF_DAMAGE, reason: "wrong" });
+    this.hurt(ctx.p, WRONG_KEY_SELF_DAMAGE, sessionId);
     this.breakStreak(ctx.p, ctx.book);
   }
 
   setTarget(sessionId: string, targetId: string) {
+    if (this.def.targeting === "ring") return; // the chain decides
     const p = this.state.players.get(sessionId);
     const t = this.state.players.get(targetId);
     if (p && t && t.alive && t.team !== p.team) p.targetId = t.sessionId;
@@ -345,15 +408,17 @@ export class MatchSim {
     const def = id ? SKILLS[id] : undefined;
     if (!def) return;
     const now = this.matchMs();
-    if (p.ink < def.cost || now - (book.lastCast[def.id] ?? -Infinity) < def.cooldownMs) return;
+    const cost = skillCost(def.id, p.streak);
+    const duration = skillDuration(def.id, p.streak);
+    if (p.ink < cost || now - (book.lastCast[def.id] ?? -Infinity) < def.cooldownMs) return;
 
-    p.ink -= def.cost;
+    p.ink -= cost;
     book.lastCast[def.id] = now;
 
     if (def.kind === "self") {
-      this.addEffect(p, def.id, p.sessionId, now + def.durationMs);
+      this.addEffect(p, def.id, p.sessionId, now + duration);
       if (def.id === "eraser") book.eraserCharges = ERASER_CHARGES;
-      this.host.broadcast("skillCast", { from: p.sessionId, to: p.sessionId, skill: def.id, blocked: false });
+      this.host.notify([p.sessionId], "skillCast", { from: p.sessionId, to: p.sessionId, skill: def.id, blocked: false });
       return;
     }
 
@@ -363,7 +428,8 @@ export class MatchSim {
         if (m.team === p.team && m.alive && (!mate || m.hp < mate.hp)) mate = m;
       });
       if (mate) mate.hp = Math.min(MATCH.maxHp, mate.hp + AMBULANCE_HEAL);
-      this.host.broadcast("skillCast", { from: p.sessionId, to: mate?.sessionId ?? p.sessionId, skill: def.id, blocked: false });
+      const to = mate?.sessionId ?? p.sessionId;
+      this.host.notify([p.sessionId, to], "skillCast", { from: p.sessionId, to, skill: def.id, blocked: false });
       return;
     }
 
@@ -372,7 +438,7 @@ export class MatchSim {
     const helmet = target.effects.findIndex((e) => e.skill === "helmet");
     if (helmet >= 0) {
       target.effects.splice(helmet, 1);
-      this.host.broadcast("skillCast", { from: p.sessionId, to: target.sessionId, skill: def.id, blocked: true });
+      this.host.notify([p.sessionId, target.sessionId], "skillCast", { from: p.sessionId, to: target.sessionId, skill: def.id, blocked: true });
       return;
     }
     const sabotages: SimEffect[] = [];
@@ -382,8 +448,8 @@ export class MatchSim {
       const oldest = sabotages.reduce((a, b) => (a.until < b.until ? a : b));
       target.effects.splice(target.effects.indexOf(oldest), 1);
     }
-    this.addEffect(target, def.id, p.sessionId, now + def.durationMs);
-    this.host.broadcast("skillCast", { from: p.sessionId, to: target.sessionId, skill: def.id, blocked: false });
+    this.addEffect(target, def.id, p.sessionId, now + duration);
+    this.host.notify([p.sessionId, target.sessionId], "skillCast", { from: p.sessionId, to: target.sessionId, skill: def.id, blocked: false });
   }
 
   /** Cooldown left for a skill, in ms (0 = ready). */
@@ -394,30 +460,73 @@ export class MatchSim {
 
   /* ---------------- rules ---------------- */
 
+  /** Returns false when the eraser absorbed the mistake. */
   private breakStreak(p: SimPlayer, book: Book) {
     if (book.eraserCharges > 0 && hasEffect(p, "eraser")) {
       book.eraserCharges--;
-      return;
+      return false;
     }
     p.streak = 0;
+    return true;
+  }
+
+  /** A note let through (or hit far too late): lose the streak and some HP, unless the eraser covers it. */
+  private missed(p: SimPlayer, book: Book) {
+    if (!this.breakStreak(p, book)) return;
+    const amount = DIFFICULTIES[this.difficulty].missDamage;
+    this.host.send(p.sessionId, "selfDamage", { amount, reason: "miss" });
+    this.hurt(p, amount, p.sessionId);
+  }
+
+  /** Streak milestone: one tool (alternating slots) is swapped for a stronger random one. */
+  private upgradeSkill(p: SimPlayer, milestone: number) {
+    const slot = ((milestone - 1) % 2) as 0 | 1;
+    const from = p.loadout[slot] as SkillId;
+    const other = p.loadout[slot === 0 ? 1 : 0] as SkillId;
+    const to = rerollSkill(slot, from, other, milestone, this.random, this.teamMode);
+    if (to === from) return;
+    p.loadout[slot] = to;
+    this.host.send(p.sessionId, "skillUpgrade", { slot, from, to });
   }
 
   private dealDamage(from: SimPlayer, amount: number) {
     const target = this.resolveTarget(from);
     if (!target || amount <= 0) return from.targetId;
-    this.hurt(target, amount);
     from.damageDealt += amount;
-    this.host.broadcast("damage", { from: from.sessionId, to: target.sessionId, amount });
+    this.host.notify([from.sessionId, target.sessionId], "damage", { from: from.sessionId, to: target.sessionId, amount });
+    this.hurt(target, amount, from.sessionId);
     return target.sessionId;
   }
 
-  private hurt(p: SimPlayer, amount: number) {
+  private hurt(p: SimPlayer, amount: number, by = "") {
+    if (!p.alive) return;
     p.hp = Math.max(0, p.hp - amount);
-    if (p.hp === 0) p.alive = false;
+    if (p.hp === 0) this.knockOut(p, by);
+  }
+
+  private knockOut(p: SimPlayer, by: string) {
+    p.alive = false;
+    if (this.def.targeting === "ring") {
+      // Whoever was chasing the fallen player inherits their target.
+      this.state.players.forEach((o) => {
+        if (o.alive && o.targetId === p.sessionId) o.targetId = p.targetId === o.sessionId ? "" : p.targetId;
+      });
+    }
+    this.host.broadcast("knockout", { victim: p.sessionId, by, remaining: this.remaining() });
   }
 
   private resolveTarget(p: SimPlayer) {
     let t = this.state.players.get(p.targetId);
+    if (this.def.targeting === "ring") {
+      // Follow the chain past anyone already down (defensive; knockOut keeps it tidy).
+      for (let guard = 0; t && !t.alive && guard < this.state.players.size; guard++) t = this.state.players.get(t.targetId);
+      if (!t || !t.alive || t.sessionId === p.sessionId) {
+        p.targetId = "";
+        return undefined;
+      }
+      p.targetId = t.sessionId;
+      return t;
+    }
     if (!t || !t.alive || t.team === p.team) {
       p.targetId = this.pickTarget(p);
       t = this.state.players.get(p.targetId);
@@ -454,5 +563,5 @@ export function hasEffect(p: Pick<SimPlayer, "effects">, skill: SkillId) {
 }
 
 function sanitizeName(name: unknown) {
-  return typeof name === "string" ? name.replace(/[^\p{L}\p{N} _.-]/gu, "").trim().slice(0, 16) : "";
+  return typeof name === "string" ? name.replace(/[^\p{L}\p{N} _.-]/gu, "").trim().slice(0, 25) : "";
 }

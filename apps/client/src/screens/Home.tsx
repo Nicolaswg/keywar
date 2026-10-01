@@ -1,4 +1,4 @@
-import { DIFFICULTIES, DIFFICULTY_IDS, SKILLS, SKILL_IDS, type Lang, type ModeId, type SkillId } from "@keywar/shared";
+import { DIFFICULTIES, DIFFICULTY_IDS, type Lang, type ModeId } from "@keywar/shared";
 import { useEffect, useState } from "react";
 import { Building, Button, Callout, Field, Sign } from "../ds";
 import { strings } from "../i18n/strings";
@@ -26,7 +26,6 @@ export function Home({
   const [joining, setJoining] = useState(false);
   const keyboard = hasKeyboard();
   const best = regions?.find((r) => r.ping !== null);
-  const teamMode = profile.mode === "team6";
 
   useEffect(() => {
     let live = true;
@@ -40,17 +39,7 @@ export function Home({
 
   const set = (patch: Partial<Profile>) => onProfile({ ...profile, ...patch });
 
-  const toggleSkill = (id: SkillId) => {
-    const [a, b] = profile.loadout;
-    if (id === a || id === b) return;
-    set({ loadout: [b, id] });
-  };
-
-  const pickMode = (mode: ModeId) => {
-    // Team-only tools make no sense in free-for-all.
-    const loadout = profile.loadout.map((id) => (mode === "ffa3" && SKILLS[id].teamOnly ? (id === "mixer" ? "helmet" : "mixer") : id));
-    set({ mode, loadout: loadout as Profile["loadout"] });
-  };
+  const pickMode = (mode: ModeId) => set({ mode });
 
   return (
     <main className="home">
@@ -93,68 +82,10 @@ export function Home({
             </fieldset>
           </div>
 
-          <fieldset className="levels">
-            <legend className="field__label">{t("difficulty")}</legend>
-            <div className="levels__row">
-              {DIFFICULTY_IDS.map((id, i) => {
-                const def = DIFFICULTIES[id];
-                return (
-                  <label
-                    key={id}
-                    className="level"
-                    data-on={profile.difficulty === id || undefined}
-                    title={`${def.phases[0]!.bpm}–${def.phases.at(-1)!.bpm} BPM`}
-                  >
-                    <input
-                      type="radio"
-                      name="difficulty"
-                      className="visually-hidden"
-                      checked={profile.difficulty === id}
-                      onChange={() => set({ difficulty: id })}
-                    />
-                    <span className="level__meter" aria-hidden="true">
-                      {DIFFICULTY_IDS.map((_, k) => (
-                        <span key={k} data-full={k <= i || undefined} />
-                      ))}
-                    </span>
-                    <span className="level__name">{def.name[profile.lang]}</span>
-                    <span className="level__blurb">{def.blurb[profile.lang]}</span>
-                  </label>
-                );
-              })}
-            </div>
-          </fieldset>
-
-          <fieldset className="tools">
-            <legend className="field__label">
-              {t("loadout")} <span className="tools__hint">{t("loadoutHint")}</span>
-            </legend>
-            <div className="tools__grid">
-              {SKILL_IDS.filter((id) => teamMode || !SKILLS[id].teamOnly).map((id) => {
-                const slot = profile.loadout.indexOf(id);
-                const def = SKILLS[id];
-                return (
-                  <button
-                    type="button"
-                    key={id}
-                    className="tool"
-                    data-kind={def.kind}
-                    data-slot={slot >= 0 ? slot : undefined}
-                    aria-pressed={slot >= 0}
-                    title={def.blurb[profile.lang]}
-                    onClick={() => toggleSkill(id)}
-                  >
-                    <span className="tool__text">
-                      <span className="tool__name">{def.name[profile.lang]}</span>
-                      <span className="tool__kind">{t(def.kind === "sabotage" ? "kindSabotage" : def.kind === "team" ? "kindTeam" : "kindSelf")}</span>
-                    </span>
-                    <span className="tool__cost tabular">{def.cost}</span>
-                    {slot >= 0 && <span className="tool__key">{slot === 0 ? t("keySpace") : "Enter"}</span>}
-                  </button>
-                );
-              })}
-            </div>
-          </fieldset>
+          <div className="tools-info">
+            <span className="field__label">{t("toolsRandom")}</span>
+            <p>{t("toolsRandomHint")}</p>
+          </div>
 
           {!keyboard && <Sign tone="brick">{t("needsKeyboard")}</Sign>}
           {error && (
@@ -174,7 +105,68 @@ export function Home({
         </form>
       </section>
 
+      <section className="home__side">
+        <fieldset className="levels home__levels">
+          <legend className="field__label home__levels-head">
+            {t("difficulty")}
+            <Sign tone="paper" className="home__region">
+            <span className="sign__small">{t("region")}</span>
+            {regions === null ? (
+              <span>{t("pinging")}</span>
+            ) : best ? (
+              <span className="tabular">
+                {best.id} · {best.ping} ms
+              </span>
+            ) : (
+              <>
+                <span>{t("noServer")}</span>
+                <span className="sign__small">{t("noServerHint")}</span>
+              </>
+            )}
+          </Sign>
+          </legend>
+          <div className="levels__row">
+            {DIFFICULTY_IDS.map((id, i) => {
+              const def = DIFFICULTIES[id];
+              return (
+                <label
+                  key={id}
+                  className="level"
+                  data-on={profile.difficulty === id || undefined}
+                  title={`${def.phases[0]!.bpm}–${def.phases.at(-1)!.bpm} BPM`}
+                >
+                  <input
+                    type="radio"
+                    name="difficulty"
+                    className="visually-hidden"
+                    checked={profile.difficulty === id}
+                    onChange={() => set({ difficulty: id })}
+                  />
+                  <span className="level__meter" aria-hidden="true">
+                    {DIFFICULTY_IDS.map((_, k) => (
+                      <span key={k} data-full={k <= i || undefined} />
+                    ))}
+                  </span>
+                  <span className="level__name">{def.name[profile.lang]}</span>
+                  <span className="level__blurb">{def.blurb[profile.lang]}</span>
+                </label>
+              );
+            })}
+          </div>
+        </fieldset>
+
+
       <section className="home__town" aria-label={t("mode")}>
+        <ModeHouse
+          mode="duel"
+          selected={profile.mode === "duel"}
+          onPick={pickMode}
+          label={t("duel")}
+          sub={t("duelShort")}
+          floors={2}
+          roof="dome"
+          wall="var(--team-2)"
+        />
         <ModeHouse
           mode="ffa3"
           selected={profile.mode === "ffa3"}
@@ -196,23 +188,8 @@ export function Home({
           wall="var(--team-1)"
         />
 
-        <div className="home__post">
-        <Sign posts tone="paper">
-          <span className="sign__small">{t("region")}</span>
-          {regions === null ? (
-            <span>{t("pinging")}</span>
-          ) : best ? (
-            <span className="tabular">
-              {best.id} · {best.ping} ms
-            </span>
-          ) : (
-            <>
-              <span>{t("noServer")}</span>
-              <span className="sign__small">{t("noServerHint")}</span>
-            </>
-          )}
-        </Sign>
-        </div>
+
+      </section>
       </section>
 
       <div className="home__ground" aria-hidden="true" />
@@ -236,7 +213,7 @@ function ModeHouse({
   label: string;
   sub: string;
   floors: number;
-  roof: "gable" | "flat";
+  roof: "gable" | "flat" | "dome";
   wall: string;
 }) {
   const team = mode === "team6";

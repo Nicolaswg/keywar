@@ -3,20 +3,36 @@
 export type Lang = "es" | "en";
 export const LANGS: readonly Lang[] = ["es", "en"];
 
-export type ModeId = "ffa3" | "team6";
+export type ModeId = "duel" | "ffa3" | "team6" | "royale";
 
 export interface ModeDef {
   id: ModeId;
-  /** Seats in the room. The match starts when they are all taken. */
+  /** Seats in the room. Matchmade modes start when they are all taken. */
   players: number;
-  /** Number of teams. In FFA every player is their own team. */
+  /** Number of teams. In free-for-all modes every player is their own team. */
   teams: number;
+  /**
+   * How targets are chosen.
+   * - healthiest: hit the healthiest enemy; Tab switches. Fine for 3–6 players.
+   * - ring: a shuffled chain where everyone attacks the next player and is
+   *   attacked by exactly one; a knocked-out player's target passes to their
+   *   attacker. Keeps 100 players from piling onto one.
+   */
+  targeting: "healthiest" | "ring";
 }
 
 export const MODES: Record<ModeId, ModeDef> = {
-  ffa3: { id: "ffa3", players: 3, teams: 3 },
-  team6: { id: "team6", players: 6, teams: 2 },
+  duel: { id: "duel", players: 2, teams: 2, targeting: "healthiest" },
+  ffa3: { id: "ffa3", players: 3, teams: 3, targeting: "healthiest" },
+  team6: { id: "team6", players: 6, teams: 2, targeting: "healthiest" },
+  royale: { id: "royale", players: 100, teams: 100, targeting: "ring" },
 };
+
+/** Twitch chat battles: the streamer starts whenever at least minPlayers are in. */
+export const ROYALE = {
+  maxPlayers: 100,
+  minPlayers: 2,
+} as const;
 
 export const MATCH = {
   /** Total match length. When it runs out, the most HP standing wins. */
@@ -74,6 +90,8 @@ export interface DifficultyDef {
   judge: JudgeWindows;
   /** Scales every hit so matches last ~2:30 whatever the note density. */
   damageMult: number;
+  /** HP you lose for every note you let pass. */
+  missDamage: number;
 }
 
 const PHASE_NAMES = [
@@ -113,6 +131,7 @@ export const DIFFICULTIES: Record<Difficulty, DifficultyDef> = {
     ]),
     judge: { perfect: 60, great: 120, good: 180, missAfter: 210 },
     damageMult: 1.5,
+    missDamage: 4,
   },
   // ~0.6 → 1.7 notes per second; eighth notes only in sudden death.
   normal: {
@@ -127,6 +146,7 @@ export const DIFFICULTIES: Record<Difficulty, DifficultyDef> = {
     ]),
     judge: { perfect: 50, great: 100, good: 150, missAfter: 180 },
     damageMult: 0.85,
+    missDamage: 5,
   },
   // ~1.1 → 2.6 notes per second, eighth notes throughout, tight timing.
   expert: {
@@ -141,6 +161,7 @@ export const DIFFICULTIES: Record<Difficulty, DifficultyDef> = {
     ]),
     judge: { perfect: 40, great: 80, good: 120, missAfter: 140 },
     damageMult: 0.17,
+    missDamage: 3,
   },
 };
 
@@ -176,15 +197,28 @@ export const DAMAGE: Record<Exclude<Judgement, "miss">, number> = {
 export const CHORD_BONUS = 1.5;
 /** Bonus damage when every letter of a word burst lands. */
 export const WORD_BONUS = 12;
+
+/**
+ * Finishing a whole falling word (every letter hit) may also heal you.
+ * Cleaner words heal more often: all letters "perfect" beats a sloppy finish.
+ */
+export const WORD_HEAL = {
+  /** Chance to heal when the word is completed with any mix of hits. */
+  chance: 0.4,
+  /** Chance when every letter was "perfect". */
+  perfectChance: 0.75,
+  /** HP restored per letter of the word ("casa" → 40). */
+  perLetter: 10,
+} as const;
 /** Pressing a key with no note under it hurts you and breaks the streak. */
 export const WRONG_KEY_SELF_DAMAGE = 2;
 
 /** Streak → multiplier, Guitar Hero style. */
 export const MULTIPLIER_STEPS = [
   { streak: 0, mult: 1 },
-  { streak: 10, mult: 2 },
-  { streak: 25, mult: 3 },
-  { streak: 50, mult: 4 },
+  { streak: 5, mult: 2 },
+  { streak: 15, mult: 3 },
+  { streak: 30, mult: 4 },
 ] as const;
 
 export function multiplierFor(streak: number): number {

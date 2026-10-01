@@ -22,8 +22,12 @@ Objetivo de producto: **de la portada a estar tecleando en menos de 30 segundos.
 
 | Modo | Jugadores | Equipos | Cómo se gana |
 |---|---|---|---|
+| `duel` · 1 contra 1 | 2 | cada uno el suyo | último edificio en pie |
 | `ffa3` · 1 contra 1 contra 1 | 3 | cada uno el suyo | último edificio en pie |
 | `team6` · 3 contra 3 | 6 | 2 | último equipo con alguien en pie |
+| `royale` · batalla del chat de Twitch | 2–100 | cada uno el suyo | último en pie; si se acaba el tiempo, más vida |
+
+La **batalla del chat** la abre un streamer: su chat se inscribe con `!keywar` y todos pelean a la vez. Ahí el objetivo funciona **en cadena** (cada uno ataca al siguiente de un anillo barajado y solo uno le ataca a él; al caer alguien, su atacante hereda su objetivo) para que 99 personas no golpeen a la misma. Detalles y cómo probarlo: [TWITCH.md](TWITCH.md).
 
 Si se acaba el tiempo gana quien tenga **más vida total** (desempate: más daño hecho).
 Salir a mitad de partida cuenta como derribo. Una caída de red da 20 s para reconectar.
@@ -84,13 +88,22 @@ Las notas se colocan sobre la misma rejilla que toca la música, así que nunca 
 - La caja engrosa su borde en el instante perfecto.
 - En el suelo-teclado, la tecla se pone **amarilla** cuando viene y **verde** mientras hay que pulsarla.
 
-**Racha → multiplicador** (estilo Guitar Hero): 10 → x2 · 25 → x3 · 50 → x4. Fallar o pulsar una tecla sin caja **rompe la racha**, y pulsar en vacío además te quita 2 de vida (para que aporrear no salga a cuenta).
+**Racha → multiplicador** (estilo Guitar Hero): 5 → x2 · 15 → x3 · 30 → x4.
+
+**Errores:**
+- **Dejar pasar una tecla** rompe la racha **y te quita vida**: 4 en Tranquilo, 5 en Normal, 3 en Experto.
+- **Pulsar una tecla sin caja** rompe la racha y te quita 2 (para que aporrear no salga a cuenta).
+- Con la **Goma** activa, sus 3 cargas te salvan de ambas cosas.
+
+**Daño visible:** cada golpe hace flotar un número: «−N» en rojo sobre el edificio al que golpeas, «−N» sobre tu pared cuando te golpean, «−5 fallo» o «−2 tecla» cuando te lo haces tú.
 
 **Daño por golpe** = base × multiplicador × fase × bonos
 
 - Base: perfecto 6 · bien 4 · vale 2
 - Caja con Shift/Ctrl: ×1,5 · nota larga: ×1,5 (+ bonus al sostenerla entera)
 - Palabra completa: +12 × multiplicador
+
+**Curarse con palabras:** al completar una palabra entera (todas sus letras acertadas) tiras un dado de curación: **40 %** de probabilidad, o **75 %** si todas sus letras fueron «perfecto». Si sale, recuperas **10 de vida por letra** («casa» = +40, sin pasar de 1000). Aparece un letrero verde «+40 vida» sobre tu pared de ladrillos.
 
 **Vida**: 1000 por jugador, dibujada como 20 ladrillos de 50.
 
@@ -102,20 +115,31 @@ El daño va a tu **objetivo**. Por defecto es el rival **con más vida**: los qu
 
 ## 6. Tinta y herramientas (habilidades)
 
-La **tinta** (el depósito de agua del tejado, 0–100) se gana tecleando limpio: +5 por perfecto, +2 por bien, +15 cada 25 de racha. Antes de buscar partida eliges **2 herramientas**: `Espacio` usa la primera y `Enter` la segunda.
+La **tinta** (el depósito de agua del tejado, 0–100) se gana tecleando limpio: +5 por perfecto, +2 por bien, +15 cada 25 de racha.
 
-| Herramienta | Tipo | Coste | Efecto | Dura | Recarga |
-|---|---|---|---|---|---|
-| Hormigonera | sabotaje | 40 | vierte cemento sobre una franja del carril rival | 4 s | 8 s |
-| Grúa turbo | sabotaje | 45 | sus cajas caen un 40 % más rápido (mismo ritmo, menos aviso) | 5 s | 10 s |
-| Escaparate | sabotaje | 35 | ve las letras en espejo | 5 s | 9 s |
-| Apagón | sabotaje | 50 | las cajas desaparecen en el último tramo | 4 s | 12 s |
-| Letrero en mayúsculas | sabotaje | 60 | todas sus letras piden Shift | 6 s | 14 s |
-| Martillo neumático | sabotaje | 30 | su edificio tiembla | 4 s | 8 s |
-| Casco | propia | 30 | bloquea el próximo sabotaje | 15 s | 15 s |
-| Goma | propia | 35 | 3 fallos sin perder la racha | 10 s | 15 s |
-| Turno doble | propia | 70 | daño x2 | 8 s | 20 s |
-| Ambulancia | equipo (3v3) | 60 | cura 120 al compañero más herido | — | 20 s |
+**Las herramientas no se eligen: te tocan al azar.** Al empezar recibes una de **ataque** (`Espacio`) y una de **apoyo** (`Enter`), de rango 1. Tu racha las hace crecer:
+
+- **Nivel** (los 3 ladrillos junto a la tecla): nivel 2 desde 15 seguidas, nivel 3 desde 30. Cada nivel dura más (x1,5 · x2) y cuesta menos tinta (−20 % · −40 %). Si rompes la racha, vuelven a nivel 1.
+- **Cambio:** cada 15 seguidas (15, 30, 45…) una de las dos —alternando— se cambia por otra al azar de un **rango superior**, con un cartel «¡nueva!».
+
+| Rango | Ataque (Espacio) | Apoyo (Enter) |
+|---|---|---|
+| 1 | Martillo neumático, Escaparate | Casco, Goma |
+| 2 | Hormigonera, Grúa turbo, Apagón | Turno doble |
+| 3 | Letrero en mayúsculas | Turno doble (3v3: Ambulancia) |
+
+| Herramienta | Coste base | Efecto (nivel 1) | Dura | Recarga |
+|---|---|---|---|---|
+| Hormigonera | 40 | vierte cemento sobre una franja del carril rival | 4 s | 8 s |
+| Grúa turbo | 45 | sus cajas caen un 40 % más rápido (mismo ritmo, menos aviso) | 5 s | 10 s |
+| Escaparate | 35 | ve las letras en espejo | 5 s | 9 s |
+| Apagón | 50 | las cajas desaparecen en el último tramo | 4 s | 12 s |
+| Letrero en mayúsculas | 60 | todas sus letras piden Shift | 6 s | 14 s |
+| Martillo neumático | 30 | su edificio tiembla | 4 s | 8 s |
+| Casco | 30 | bloquea el próximo sabotaje | 15 s | 15 s |
+| Goma | 35 | 3 fallos sin perder racha ni vida | 10 s | 15 s |
+| Turno doble | 70 | daño x2 | 8 s | 20 s |
+| Ambulancia | 60 | cura 120 al compañero más herido | — | 20 s |
 
 **Reglas anti-frustración**
 - Un jugador soporta como máximo **2 sabotajes a la vez**; un tercero reemplaza al que antes caduca.

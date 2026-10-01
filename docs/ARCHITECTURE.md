@@ -51,6 +51,14 @@ cliente                                   servidor
 
 Límite: un cliente modificado podría mentir sobre el offset dentro de la ventana. Mitigaciones previstas: análisis estadístico de offsets por jugador (demasiado perfecto = sospechoso), límite de mensajes (`maxMessagesPerSecond = 60`) y cuentas/ranking antes de premiar nada.
 
+## Batallas del chat de Twitch
+
+- **`RoyaleRoom`** (una sala por canal, `filterBy(["channel"])`): estado de inscripción (`entrants`, `stage`, `command`, `remaining`) + el mismo `MatchSim` en modo `royale` (objetivo en anillo). `patchRate` 100 ms.
+- **Eventos dirigidos:** `MatchSim` emite `damage` y `skillCast` con `host.notify(ids)`. Las salas de 3–6 los difunden a todos; `RoyaleRoom` solo los manda a los dos implicados y a los espectadores (overlay/panel). `knockout` sí va a todos.
+- **Login:** OAuth de Twitch (authorization code) en `apps/server/src/twitch/routes.ts`; el servidor firma un token de sesión propio (HMAC, `SESSION_SECRET`). Streamer pide `user:read:chat` y `user:write:chat`; el jugador, ningún permiso.
+- **Chat:** `ChatListener` se conecta a EventSub por WebSocket con el token del streamer y se suscribe a `channel.chat.message`. Cada línea pasa por `parseChatCommand` (shared, con tests) → `registry.handleChat`. El simulador de chat del modo dev entra por el mismo `handleChat`.
+- **Medido:** 100 jugadores en una sala ≈ 4 % CPU media, ~115 MB, ~0,2 MB/s (`pnpm --filter @keywar/server loadtest -- --bots 100 --start`).
+
 ## Mensajes
 
 | Dirección | Tipo | Carga |
@@ -64,7 +72,8 @@ Límite: un cliente modificado podría mentir sobre el offset dentro de la venta
 | S → C | `clock` | `{c, s}` |
 | S → C | `judged` | `{noteId, judgement, damage, targetId}` (solo al que golpeó) |
 | S → C | `skillCast` | `{from, to, skill, blocked}` (a todos) |
-| S → C | `damage` | `{from, to, amount}` (a todos; anima el ladrillo que cae) |
+| S → C | `damage` | `{from, to, amount}` (anima el ladrillo que cae; en batallas del chat solo a los implicados) |
+| S → C | `knockout` | `{victim, by, remaining}` (a todos; feed del overlay) |
 
 El resto (vida, racha, tinta, efectos activos, fase, ganador) va en el **estado sincronizado** (`apps/server/src/rooms/schema.ts`).
 

@@ -1,4 +1,4 @@
-import type { Difficulty, Lang, MatchPhase, ModeId, PlayerView, ServerMessages, SkillId } from "@keywar/shared";
+import type { Difficulty, EntrantView, Lang, MatchPhase, ModeId, PlayerView, RoyaleStage, ServerMessages, SkillId } from "@keywar/shared";
 
 export interface Snapshot {
   mode: ModeId;
@@ -8,6 +8,18 @@ export interface Snapshot {
   seed: number;
   winnerTeam: number;
   players: PlayerView[];
+  /** Present in Twitch chat battles. */
+  royale?: RoyaleView;
+}
+
+export interface RoyaleView {
+  channel: string;
+  channelName: string;
+  stage: RoyaleStage;
+  command: string;
+  maxPlayers: number;
+  remaining: number;
+  entrants: EntrantView[];
 }
 
 type Listener<K extends keyof ServerMessages> = (msg: ServerMessages[K]) => void;

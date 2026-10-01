@@ -82,7 +82,8 @@
   align-content: start;
   gap: var(--s-4);
   max-width: 620px;
-  padding-bottom: calc(var(--ground) + var(--s-6));
+  /* The paper form may stand on the grass; only a little room below it. */
+  padding-bottom: var(--s-5);
 }
 .home__tagline {
   font-family: var(--font-display);
@@ -213,6 +214,19 @@
   line-height: 1.25;
 }
 
+.tools-info {
+  display: grid;
+  gap: var(--s-1);
+  padding: var(--s-3) var(--s-4);
+  border: 2px dashed var(--ink-soft);
+  border-radius: var(--radius-sm);
+}
+.tools-info p {
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  max-width: 60ch;
+}
+
 .tools {
   margin: 0;
   padding: 0;
@@ -297,12 +311,46 @@
   gap: var(--s-4);
 }
 
+/* ---------- right column: difficulty above the town ---------- */
+.home__side {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: var(--s-5);
+  min-width: 0;
+}
+.home__levels {
+  align-self: start;
+  justify-self: center;
+  width: min(560px, 100%);
+  margin-top: clamp(var(--s-5), 9vh, 120px);
+  padding: var(--s-3) var(--s-4) var(--s-4);
+  border: var(--line);
+  border-radius: var(--radius);
+  background: var(--grain), var(--paper);
+  box-shadow: var(--ground-shadow);
+}
+.home__levels legend {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--s-2);
+}
+.home__levels-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-3);
+}
+.home__region {
+  padding: 2px var(--s-3);
+  font-size: var(--fs-body);
+}
+
 /* ---------- town / mode picker ---------- */
 .home__town {
   display: flex;
   align-items: flex-end;
   justify-content: center;
-  gap: clamp(24px, 5vw, 72px);
+  gap: clamp(12px, 2.4vw, 40px);
   padding-bottom: calc(var(--ground) - 30px);
   align-self: end;
 }
@@ -310,7 +358,7 @@
   display: grid;
   justify-items: center;
   gap: var(--s-2);
-  width: clamp(150px, 15vw, 210px);
+  width: clamp(112px, 11vw, 176px);
   cursor: pointer;
   transition: transform var(--t-med) var(--ease-out);
 }
@@ -340,8 +388,8 @@
   line-height: 1;
 }
 .mode__label strong {
+  font-size: clamp(1rem, 1.45vw, 1.375rem);
   white-space: nowrap;
-  font-size: clamp(1.125rem, 4.6vw, var(--fs-h3));
 }
 .mode[data-selected] .mode__label strong {
   background: var(--bus);
@@ -381,6 +429,9 @@
   }
   .home__intro {
     padding-bottom: 0;
+  }
+  .home__levels {
+    margin-top: 0;
   }
   .home__town {
     padding-bottom: calc(var(--ground) + 24px);

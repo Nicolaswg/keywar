@@ -7,6 +7,8 @@ import {
   MATCH,
   SKILLS,
   legendFor,
+  skillCost,
+  skillLevel,
   multiplierFor,
   phaseAt,
   type Judgement,
@@ -50,11 +52,22 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
   const [popup, setPopup] = useState<{ id: number; judgement: Judgement | "wrong"; mult: number } | null>(null);
   const [casts, setCasts] = useState<Cast[]>([]);
   const [hits, setHits] = useState<Record<string, number>>({});
+  const [heal, setHeal] = useState<{ id: number; amount: number; word: string; perfect: boolean } | null>(null);
+  /** Floating "-N" numbers: on the building you hit, and on your own wall. */
+  const [floats, setFloats] = useState<Float[]>([]);
+  const [upgrade, setUpgrade] = useState<{ id: number; slot: 0 | 1; to: SkillId } | null>(null);
 
   const enemies = snap.players.filter((p) => me && p.team !== me.team);
   const allies = snap.players.filter((p) => me && p.team === me.team && p.sessionId !== me.sessionId);
-  const left = snap.mode === "team6" ? allies : enemies.slice(0, 1);
-  const right = snap.mode === "team6" ? enemies : enemies.slice(1);
+  // Chat battles (ring): only the two players that matter, whoever chases you and whoever you chase.
+  const ring = snap.mode === "royale";
+  const attacker = ring ? snap.players.find((p) => p.alive && p.targetId === me?.sessionId) : undefined;
+  const myTarget = ring ? snap.players.find((p) => p.sessionId === me?.targetId) : undefined;
+  const duel = snap.mode === "duel";
+  const left = ring ? (attacker ? [attacker] : []) : snap.mode === "team6" ? allies : duel ? [] : enemies.slice(0, 1);
+  const right = ring ? (myTarget ? [myTarget] : []) : snap.mode === "team6" ? enemies : duel ? enemies : enemies.slice(1);
+  const tagFor = (p: PlayerView) =>
+    !ring ? undefined : p.sessionId === me?.targetId ? { text: t("twYourTarget"), tone: "brick" as const } : { text: t("twAttacker"), tone: "paper" as const };
 
   // Audio + judgement feedback.
   useEffect(() => {
@@ -81,10 +94,34 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
       setCasts((c) => [...c.slice(-5), { id, msg }]);
       setTimeout(() => setCasts((c) => c.filter((x) => x.id !== id)), 2200);
     });
-    const offDmg = session.on("damage", (msg) => setHits((h) => ({ ...h, [msg.to]: (h[msg.to] ?? 0) + 1 })));
+    const pushFloat = (f: Omit<Float, "id">) => {
+      const id = seq++;
+      setFloats((list) => [...list.slice(-12), { id, ...f }]);
+      setTimeout(() => setFloats((list) => list.filter((x) => x.id !== id)), 1100);
+    };
+    const offDmg = session.on("damage", (msg) => {
+      setHits((h) => ({ ...h, [msg.to]: (h[msg.to] ?? 0) + 1 }));
+      // Only hits that involve you: in 3v3 you don't need your teammates' numbers.
+      if (msg.from === session.meId) pushFloat({ on: msg.to, amount: msg.amount, kind: "dealt" });
+      else if (msg.to === session.meId) pushFloat({ on: session.meId, amount: msg.amount, kind: "taken" });
+    });
+    const offSelf = session.on("selfDamage", (msg) => pushFloat({ on: session.meId, amount: msg.amount, kind: msg.reason }));
+    const offUpgrade = session.on("skillUpgrade", (msg) => {
+      const id = seq++;
+      setUpgrade({ id, slot: msg.slot, to: msg.to });
+      setTimeout(() => setUpgrade((u) => (u?.id === id ? null : u)), 2600);
+    });
+    const offHeal = session.on("heal", (msg) => {
+      const id = seq++;
+      setHeal({ id, ...msg });
+      setTimeout(() => setHeal((h) => (h?.id === id ? null : h)), 1800);
+    });
     return () => {
       offCast();
       offDmg();
+      offHeal();
+      offSelf();
+      offUpgrade();
     };
   }, [session]);
 
@@ -185,6 +222,11 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
             {DIFFICULTIES[snap.difficulty].name[snap.lang]} · {phase.bpm} BPM{phase.damageScale > 1 ? ` · ${t("damage")} x${phase.damageScale}` : ""}
           </span>
         </Sign>
+        {snap.royale && (
+          <Sign tone="brick" className="match__phase tabular">
+            {t("twRemaining", { n: snap.royale.remaining })}
+          </Sign>
+        )}
         <span className="match__leave">
           <Button variant="ghost" onClick={onExit}>
             {t("leaveMatch")}
@@ -195,7 +237,7 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
       <div className="match__arena">
         <div className="match__side">
           {left.map((p) => (
-            <Rival key={p.sessionId} p={p} t={t} ally={p.team === me.team} target={me.targetId === p.sessionId} hits={hits[p.sessionId] ?? 0} casts={casts} onTarget={() => session.target(p.sessionId)} lang={snap.lang} />
+            <Rival key={p.sessionId} p={p} t={t} ally={p.team === me.team} target={me.targetId === p.sessionId} tag={tagFor(p)} hits={hits[p.sessionId] ?? 0} casts={casts} floats={floats.filter((f) => f.on === p.sessionId).slice(-3)} onTarget={() => session.target(p.sessionId)} lang={snap.lang} />
           ))}
         </div>
 
@@ -245,16 +287,23 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
           </div>
 
           <div className="mine__street">
-            <SkillSign slot={0} id={me.loadout[0]!} me={me} session={session} t={t} lang={snap.lang} />
+            <SkillSign slot={0} id={me.loadout[0]!} me={me} session={session} t={t} lang={snap.lang} upgraded={upgrade?.slot === 0 ? upgrade.id : undefined} />
             <div className="streak" data-mult={mult}>
               <span className="streak__n tabular">{me.streak}</span>
               <span className="streak__label">
                 {t("streak")} · <strong>x{mult}</strong>
               </span>
             </div>
-            <SkillSign slot={1} id={me.loadout[1]!} me={me} session={session} t={t} lang={snap.lang} />
+            <SkillSign slot={1} id={me.loadout[1]!} me={me} session={session} t={t} lang={snap.lang} upgraded={upgrade?.slot === 1 ? upgrade.id : undefined} />
           </div>
           <div className="mine__hp">
+            <Floats list={floats.filter((f) => f.on === me.sessionId).slice(-3)} t={t} />
+            {heal && (
+              <span key={heal.id} className="heal" role="status">
+                <strong>{t("healed", { n: heal.amount })}</strong>
+                <span className="heal__word">{t("healedWord", { word: heal.word.toUpperCase() })}</span>
+              </span>
+            )}
             <BrickWall hp={me.hp} max={MATCH.maxHp} />
             <span className="tabular">
               {t("hp")} {me.hp}
@@ -264,7 +313,7 @@ export function Match({ session, snap, profile, t, onExit }: { session: GameSess
 
         <div className="match__side">
           {right.map((p) => (
-            <Rival key={p.sessionId} p={p} t={t} ally={false} target={me.targetId === p.sessionId} hits={hits[p.sessionId] ?? 0} casts={casts} onTarget={() => session.target(p.sessionId)} lang={snap.lang} />
+            <Rival key={p.sessionId} p={p} t={t} ally={false} target={me.targetId === p.sessionId} tag={tagFor(p)} hits={hits[p.sessionId] ?? 0} casts={casts} floats={floats.filter((f) => f.on === p.sessionId).slice(-3)} onTarget={() => session.target(p.sessionId)} lang={snap.lang} />
           ))}
         </div>
       </div>
@@ -293,16 +342,66 @@ function Keyboard({ refEl, layout }: { refEl: RefObject<HTMLDivElement | null>; 
   );
 }
 
-function SkillSign({ slot, id, me, session, t, lang }: { slot: 0 | 1; id: SkillId; me: PlayerView; session: GameSession; t: T; lang: "es" | "en" }) {
-  const def = SKILLS[id];
-  const cd = session.cooldownLeft(id);
-  const state = cd > 0 ? "cooldown" : me.ink < def.cost ? "noink" : "ready";
+interface Float {
+  id: number;
+  /** sessionId of the building the number floats over. */
+  on: string;
+  amount: number;
+  kind: "dealt" | "taken" | "miss" | "wrong";
+}
+
+function Floats({ list, t }: { list: Float[]; t: T }) {
   return (
-    <button type="button" className="skill" data-state={state} onClick={() => session.skill(slot)} title={def.blurb[lang]}>
-      <span className="skill__key">{slot === 0 ? t("keySpace") : "Enter"}</span>
+    <span className="floats" aria-hidden="true">
+      {list.map((f, i) => (
+        <span key={f.id} className="float" data-kind={f.kind} style={{ "--x": `${((f.id * 37) % 60) - 30}px`, "--i": i } as CSSProperties}>
+          −{f.amount}
+          {f.kind === "miss" && <small> {t("floatMiss")}</small>}
+          {f.kind === "wrong" && <small> {t("floatWrong")}</small>}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function SkillSign({
+  slot,
+  id,
+  me,
+  session,
+  t,
+  lang,
+  upgraded,
+}: {
+  slot: 0 | 1;
+  id: SkillId;
+  me: PlayerView;
+  session: GameSession;
+  t: T;
+  lang: "es" | "en";
+  /** Set (to a changing id) right after the streak swapped this tool. */
+  upgraded?: number;
+}) {
+  const def = SKILLS[id];
+  const cost = skillCost(id, me.streak);
+  const level = skillLevel(me.streak);
+  const cd = session.cooldownLeft(id);
+  const state = cd > 0 ? "cooldown" : me.ink < cost ? "noink" : "ready";
+  return (
+    <button type="button" key={upgraded} className="skill" data-state={state} data-new={upgraded !== undefined || undefined} onClick={() => session.skill(slot)} title={def.blurb[lang]}>
+      {upgraded !== undefined && <span className="skill__new">{t("newTool")}</span>}
+      <span className="skill__top">
+        <span className="skill__key">{slot === 0 ? t("keySpace") : "Enter"}</span>
+        {/* Level = filled bricks: 1 to 3, it climbs with the streak. */}
+        <span className="skill__level" aria-label={t("toolLevel", { n: level })}>
+          {[1, 2, 3].map((n) => (
+            <span key={n} data-on={n <= level || undefined} />
+          ))}
+        </span>
+      </span>
       <span className="skill__name">{def.name[lang]}</span>
       <span className="skill__meta tabular">
-        {state === "cooldown" ? `${t("cooldown")} ${Math.ceil(cd / 1000)}s` : state === "noink" ? `${t("noInk")} · ${def.cost}` : `${t("ready")} · ${def.cost}`}
+        {state === "cooldown" ? `${t("cooldown")} ${Math.ceil(cd / 1000)}s` : state === "noink" ? `${t("noInk")} · ${cost}` : `${t("ready")} · ${cost}`}
       </span>
     </button>
   );
@@ -317,6 +416,8 @@ function Rival({
   casts,
   onTarget,
   lang,
+  tag,
+  floats,
 }: {
   p: PlayerView;
   t: T;
@@ -326,18 +427,27 @@ function Rival({
   casts: Cast[];
   onTarget: () => void;
   lang: "es" | "en";
+  /** Replaces the default "target · Tab switches" sign (chat battles). */
+  tag?: { text: string; tone: "brick" | "paper" };
+  floats: Float[];
 }) {
   const incoming = casts.filter((c) => c.msg.to === p.sessionId && c.msg.from !== p.sessionId);
   const left = Math.ceil(Math.max(0, p.hp) / 50);
   return (
     <button type="button" className="rival" data-target={target || undefined} data-ally={ally || undefined} onClick={onTarget} disabled={ally || !p.alive}>
-      {target && (
+      {tag ? (
         <span className="rival__hook">
-          <Sign tone="brick">
-            {t("target")}
-            <span className="sign__small">{t("targetHint")}</span>
-          </Sign>
+          <Sign tone={tag.tone}>{tag.text}</Sign>
         </span>
+      ) : (
+        target && (
+          <span className="rival__hook">
+            <Sign tone="brick">
+              {t("target")}
+              <span className="sign__small">{t("targetHint")}</span>
+            </Sign>
+          </span>
+        )
       )}
       <Building
         roof={ROOF_FOR_TEAM[p.team % 3]!}
@@ -352,6 +462,7 @@ function Rival({
             {ally && <span className="rival__tag">{t("ally")}</span>}
           </span>,
           <span className="rival__wall" key={hits}>
+            <Floats list={floats} t={t} />
             <BrickWall hp={p.hp} max={MATCH.maxHp} falling={hits ? left : -1} />
           </span>,
           <span className="rival__stats tabular">

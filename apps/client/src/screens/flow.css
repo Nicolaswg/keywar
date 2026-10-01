@@ -147,3 +147,13 @@
   justify-content: center;
   gap: var(--s-4);
 }
+
+.results__place {
+  font-size: var(--fs-h3);
+}
+.results__street[data-big] .result {
+  width: 128px;
+}
+.results__street[data-big] .result__flag {
+  font-size: var(--fs-body);
+}

@@ -47,3 +47,40 @@ export const MatchState = schema(
   "MatchState",
 );
 export type MatchState = SchemaType<typeof MatchState>;
+
+export const Entrant = schema(
+  {
+    login: t.string(),
+    displayName: t.string(),
+    /** 1-based sign-up order; past the cap they are in the waitlist. */
+    order: t.uint16(),
+    connected: t.boolean(),
+    seated: t.boolean(),
+  },
+  "Entrant",
+);
+export type Entrant = SchemaType<typeof Entrant>;
+
+/** A Twitch chat battle: the match fields plus registration. */
+export const RoyaleState = schema(
+  {
+    mode: t.string(),
+    lang: t.string(),
+    difficulty: t.string(),
+    phase: t.string(),
+    seed: t.uint32(),
+    startsAt: t.number(),
+    players: t.map(Player),
+    winnerTeam: t.int16(),
+    channel: t.string(),
+    channelName: t.string(),
+    /** registering → closed → match. */
+    stage: t.string(),
+    command: t.string(),
+    maxPlayers: t.uint8(),
+    entrants: t.array(Entrant),
+    remaining: t.uint8(),
+  },
+  "RoyaleState",
+);
+export type RoyaleState = SchemaType<typeof RoyaleState>;

@@ -8,6 +8,13 @@ services:
     environment:
       PORT: 2567
       REGION: ${REGION:-local}
+      # Twitch chat battles (docs/TWITCH.md)
+      TWITCH_CLIENT_ID: ${TWITCH_CLIENT_ID:-}
+      TWITCH_CLIENT_SECRET: ${TWITCH_CLIENT_SECRET:-}
+      SESSION_SECRET: ${SESSION_SECRET:-}
+      PUBLIC_WEB_URL: ${PUBLIC_WEB_URL:-http://localhost:8080}
+      PUBLIC_API_URL: ${PUBLIC_API_URL:-http://localhost:2567}
+      NODE_ENV: production
     ports:
       - "2567:2567"
     restart: unless-stopped

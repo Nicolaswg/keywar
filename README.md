@@ -4,6 +4,7 @@ Pelea de tecleo online y gratis. Las teclas (letras, símbolos, atajos con Shift
 
 - **Diseño del juego**: [docs/GAME_DESIGN.md](docs/GAME_DESIGN.md)
 - **Arquitectura**: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+- **Batalla del chat de Twitch** (hasta 100, `!keywar`): [docs/TWITCH.md](docs/TWITCH.md)
 - **Producto**: [PRODUCT.md](PRODUCT.md) · **Design system**: [DESIGN.md](DESIGN.md) y la página viva en `http://localhost:5173/?ds`
 
 ## Arrancar en local
